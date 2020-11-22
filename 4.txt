@@ -7,6 +7,6 @@ leisure
 vibrato
 technical
 sporadic
-offical
+official
 incognito
 gesture
