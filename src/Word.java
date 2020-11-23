@@ -11,9 +11,11 @@ public class Word implements ActionListener{
 	private String wordIdent;
 	private String sentence;
 	private javax.sound.sampled.Clip clip;
+	
 	Word(String word){
 		wordIdent = word.toLowerCase();
 	}
+	
 	public void editWord() {
 		  frame = new JFrame("edit word");    
 		  frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -29,9 +31,11 @@ public class Word implements ActionListener{
 	      frame.pack();    
 	      frame.setVisible(true);
 	}
+	
 	public String getWord() {
 		return wordIdent;
 	}
+	
 	public String[] checkSpelling(String spelling) {
 		String front = "";
 		String end = "";
@@ -39,7 +43,7 @@ public class Word implements ActionListener{
 		boolean correct = true;
 		String spacer = "";
 		while(correct && (i < wordIdent.length()) && (i < spelling.length())) {//finds correct letters from the front
-			if(spelling.substring(i,i+1).equals(wordIdent.substring(i,i+1))) {
+			if(spelling.charAt(i) == wordIdent.charAt(i)) {
 				front = front + spelling.substring(i,i+1);
 			}
 			else {
@@ -47,14 +51,15 @@ public class Word implements ActionListener{
 			}
 			i++;
 		}		
-		i = spelling.length();
+		i = Math.min(spelling.length(), wordIdent.length());
+		int j = i;
 		correct = true;
-		System.out.println(i);
-		System.out.println(front.length());
+		//System.out.println(i);
+		//System.out.println(front.length());
 		while(correct && (i > front.length())) {//finds the correct letters from the back end
-			System.out.println("bababooey");
-			if(spelling.substring(i-1,i).equals(wordIdent.substring(i-1,i))) {
-				end = spelling.substring(i-1,i) + end;
+			//System.out.println("bababooey");
+			if(spelling.charAt(spelling.length()-j+i-1) == wordIdent.charAt(wordIdent.length()-j+i-1)) {
+				end = spelling.substring(spelling.length()-j+i-1,spelling.length()-j+i) + end;
 			}
 			else {
 				correct = false;	
@@ -64,27 +69,58 @@ public class Word implements ActionListener{
 		for(int x = 0; x < (spelling.length() - front.length() - end.length()); x++) {//creates a spacer
 			spacer = spacer + "_";
 		}
+		if (spacer.isEmpty() && wordIdent.length() != front.length() + end.length()) {//indicate whether letters are missing
+	        spacer = "*";
+	    }
 		return new String[]{front,spacer,end};
 	}
+	
 	public void actionPerformed(ActionEvent e) {
 		wordIdent = newSpell.getText();
 		frame.setVisible(false);
 	}
-	public void printSpellCheck(String[] input) {
+	
+	public static void printSpellCheck(String[] input) {
 		System.out.print(input[0]);
+		System.out.print(", ");
 		System.out.print(input[1]);
-		System.out.print(input[2]);
-		System.out.println("\n");
+		System.out.print(", ");
+		System.out.println(input[2]);
 	}
+	
 	private static void runGUI() {    
 		   JFrame.setDefaultLookAndFeelDecorated(true);   
 		   Word garbage = new Word("garbage");
-		   //garbage.printSpellCheck(garbage.checkSpelling("garbage"));
-		   //garbage.printSpellCheck(garbage.checkSpelling("garxage"));
-		   //garbage.printSpellCheck(garbage.checkSpelling("garbag"));
-		   garbage.printSpellCheck(garbage.checkSpelling("arbage"));
-		   //garbage.editWord();  
+		   printSpellCheck(garbage.checkSpelling("garbage"));
+		   printSpellCheck(garbage.checkSpelling("garxage"));
+		   printSpellCheck(garbage.checkSpelling("garbag"));
+		   printSpellCheck(garbage.checkSpelling("arbage"));
+		   //garbage.editWord();
+		   Word spam = new Word("spam");
+		   printSpellCheck(spam.checkSpelling("spam"));
+		   printSpellCheck(spam.checkSpelling("sam"));
+		   printSpellCheck(spam.checkSpelling("am"));
+		   printSpellCheck(spam.checkSpelling("spa"));
+		   printSpellCheck(spam.checkSpelling("egg"));
+		   printSpellCheck(spam.checkSpelling("bacon"));
+		   printSpellCheck(spam.checkSpelling("spamspam"));
+		   printSpellCheck(spam.checkSpelling("spamegg"));
+		   printSpellCheck(spam.checkSpelling("sspam"));
+		   printSpellCheck(spam.checkSpelling("sspa"));
+		   printSpellCheck(spam.checkSpelling("spapam"));
+		   printSpellCheck(spam.checkSpelling("sausage"));
+		   printSpellCheck(spam.checkSpelling("spom"));
+		   printSpellCheck(spam.checkSpelling(""));
+		   Word none = new Word("");
+		   printSpellCheck(none.checkSpelling("spam"));
+		   printSpellCheck(none.checkSpelling(""));
+		   Word egg = new Word("egg");
+		   printSpellCheck(egg.checkSpelling("egg"));
+		   printSpellCheck(egg.checkSpelling("ggg"));
+		   printSpellCheck(egg.checkSpelling("g"));
+		   printSpellCheck(egg.checkSpelling("spamegg"));
 	}
+	
 	public static void main(String[] args) {      
 		  javax.swing.SwingUtilities.invokeLater(new Runnable() {        
 			  public void run() {          
