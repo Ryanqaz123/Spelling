@@ -7,6 +7,8 @@ public class Editor {
 	
 	private JFrame frame = new JFrame("Editor");
 	private JPanel mainMenu = new JPanel(), editMenu = new JPanel();
+	// main menu
+	private JLabel levelListLabel, wordListLabel;
 	private JList<Integer> levels;
 	private JList<Word> words;
 	private DefaultListModel<Integer> levelList;
@@ -14,7 +16,8 @@ public class Editor {
 	private JScrollPane levelPane, wordPane;
 	private JButton addWord = new JButton("Add"), editWord = new JButton("Edit"),
 			removeWord = new JButton("Remove"), dontRemove = new JButton("Cancel");
-	private JLabel wordLabel, soundLabel, sentenceLabel, levelLabel;
+	// edit word menu
+	private JLabel wordLabel, soundLabel, recordLabel, sentenceLabel, levelLabel;
 	private JTextField wordField, levelField;
 	private JTextArea sentenceField;
 	private JButton previewSound, recordSound, saveButton, cancelButton;
