@@ -72,7 +72,7 @@ public class Editor {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				if (!e.getValueIsAdjusting()) {
-					Integer key = levelList.get(levels.getSelectedIndex());
+					Integer key = levels.getSelectedValue();
 					words.setModel(wordList.get(key));
 				}
 			}
@@ -104,11 +104,16 @@ public class Editor {
 		c.gridx = 1;
 		c.gridy = 3;
 		mainMenu.add(editWord, c);
+		editWord.addActionListener(new OpenEditMenu());
+		editWord.setActionCommand("edit");
 		c.gridy = 4;
 		mainMenu.add(addWord, c);
 		addWord.addActionListener(new OpenEditMenu());
+		addWord.setActionCommand("add");
 		// ==========Edit menu==========
+		editMenu.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		editMenu.setLayout(new GridBagLayout());
+		// labels
 		wordLabel = new JLabel("Spelling");
 		c.gridx = 0; c.gridy = 0;
 		editMenu.add(wordLabel, c);
@@ -125,11 +130,13 @@ public class Editor {
 		levelLabel = new JLabel("Level");
 		editMenu.add(levelLabel, c);
 		c.gridy++; c.gridx++;
+		// save and cancel buttons
 		saveButton = new JButton("Save");
 		editMenu.add(saveButton, c);
 		c.gridx++;
 		cancelButton = new JButton("Cancel");
 		editMenu.add(cancelButton, c);
+		// text fields
 		c.gridx = 1; c.gridy = 0;
 		c.gridwidth = 2;
 		wordField = new JTextField(8);
@@ -141,6 +148,7 @@ public class Editor {
 		c.gridy = 4;
 		levelField = new JTextField(5);
 		editMenu.add(levelField, c);
+		// preview and record sound buttons
 		c.gridy = 1;
 		previewSound = new JButton("Preview");
 		editMenu.add(previewSound, c);
@@ -159,7 +167,7 @@ public class Editor {
 		frame.setVisible(true);
 	}
 	
-	/*private HashMap<String, Clip> getClips(String audioFolder){
+	public static HashMap<String, Clip> getClips(String audioFolder){
 		HashMap<String, Clip> clipMap = new HashMap<>();
 		File soundDirectory = new File(audioFolder);
 		File[] soundFiles = soundDirectory.listFiles();
@@ -185,14 +193,29 @@ public class Editor {
 			}
 		}
 		return clipMap;
-	}*/
+	}
 	
 	private class OpenEditMenu implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			// load current word if necessary
+			// audio clips can be loaded by file
+			Word currentWord = null;
+			Integer currentLevel = -1;
+			if (e.getActionCommand().equals("edit")) {
+				currentWord = words.getSelectedValue();
+				currentLevel = levels.getSelectedValue();
+				wordField.setText(currentWord.getWord());
+				levelField.setText(currentLevel.toString());
+			}
+			recordLengthField.setText("3");
 			frame.setContentPane(editMenu);
 			frame.pack();
-			frame.setTitle("Edit Word");
+			if (e.getActionCommand().equals("add")) {
+				frame.setTitle("Add Word");
+			} else {
+				frame.setTitle("Edit " + currentWord.getWord());
+			}
 		}
 	}
 
