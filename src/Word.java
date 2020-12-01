@@ -1,39 +1,30 @@
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import javax.sound.sampled.*;
 
-import javax.swing.*;
-public class Word implements ActionListener{
-	JFrame frame;
-	JPanel contentPane;
-	JLabel prompt;
-	JTextField newSpell;
+public class Word{
 	private String wordIdent;
-	private String sentence;
-	private javax.sound.sampled.Clip clip;
+	private Clip sentence;
+	private Clip sound;
 
-	Word(String word){
-		wordIdent = word.toLowerCase();
+	public Word(String word){
+		wordIdent = word;
 	}
-
-	public void editWord() {
-		frame = new JFrame("edit word");    
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		contentPane = new JPanel();    
-		contentPane.setLayout(new GridLayout(2, 0, 10, 5)); 
-		contentPane.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-		newSpell = new JTextField(20);
-		newSpell.addActionListener(this);
-		prompt = new JLabel("Enter the new spelling: ");
-		frame.setContentPane(contentPane);
-		contentPane.add(prompt);
-		contentPane.add(newSpell);
-		frame.pack();    
-		frame.setVisible(true);
+	
+	public Word(String word, Clip sound, Clip sentence) {
+		wordIdent = word;
+		this.sentence = sentence;
+		this.sound = sound;
 	}
 
 	public String getWord() {
 		return wordIdent;
+	}
+
+	public Clip getSentence() {
+		return sentence;
+	}
+
+	public Clip getSound() {
+		return sound;
 	}
 
 	public String[] checkSpelling(String spelling) {
@@ -75,10 +66,6 @@ public class Word implements ActionListener{
 		return new String[]{front,spacer,end};
 	}
 
-	public void actionPerformed(ActionEvent e) {
-		wordIdent = newSpell.getText();
-		frame.setVisible(false);
-	}
 
 	public static void printSpellCheck(String[] input) {
 		System.out.print(input[0]);
@@ -88,14 +75,12 @@ public class Word implements ActionListener{
 		System.out.println(input[2]);
 	}
 
-	private static void runGUI() {    
-		JFrame.setDefaultLookAndFeelDecorated(true);   
+	public static void main(String[] args) {      
 		Word garbage = new Word("garbage");
 		printSpellCheck(garbage.checkSpelling("garbage"));
 		printSpellCheck(garbage.checkSpelling("garxage"));
 		printSpellCheck(garbage.checkSpelling("garbag"));
 		printSpellCheck(garbage.checkSpelling("arbage"));
-		//garbage.editWord();
 		Word spam = new Word("spam");
 		printSpellCheck(spam.checkSpelling("spam"));
 		printSpellCheck(spam.checkSpelling("sam"));
@@ -128,15 +113,7 @@ public class Word implements ActionListener{
 		printSpellCheck(egg.checkSpelling("eeg"));
 		printSpellCheck(egg.checkSpelling("lobsterthermidor"));
 		printSpellCheck(egg.checkSpelling("Egg"));
-		printSpellCheck(egg.checkSpelling("EGG"));
-	}
-
-	public static void main(String[] args) {      
-		javax.swing.SwingUtilities.invokeLater(new Runnable() {        
-			public void run() {          
-				runGUI();        
-			}    
-		});  
+		printSpellCheck(egg.checkSpelling("EGG"));  
 	}
 
 
