@@ -65,7 +65,15 @@ public class Word{
 		}
 		return new String[]{front,spacer,end};
 	}
+	
+	
 
+
+	@Override
+	public String toString() {
+		// pretty much an exact copy of getWord()
+		return wordIdent;
+	}
 
 	public static void printSpellCheck(String[] input) {
 		System.out.print(input[0]);
