@@ -4,32 +4,35 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import java.io.*;
-import javax.sound.sampled.*;
+// import javax.sound.sampled.*;
 
 public class Editor {
 	
+	// frames and panels
 	private JFrame frame = new JFrame("Editor");
 	private JPanel mainMenu = new JPanel(), editMenu = new JPanel();
-	// main menu
+	// main menu components
 	private JLabel levelListLabel, wordListLabel;
 	private JList<Integer> levels;
 	private JList<Word> words;
-	private DefaultListModel<Integer> levelList = new DefaultListModel<>();
-	private HashMap<Integer, DefaultListModel<Word>> wordList = new HashMap<>();
 	private JScrollPane levelPane, wordPane;
 	private JButton addWord = new JButton("Add"), editWord = new JButton("Edit"),
 			removeWord = new JButton("Remove"), dontRemove = new JButton("Cancel");
-	// edit word menu
+	// main menu data
+	private DefaultListModel<Integer> levelList = new DefaultListModel<>();
+	private HashMap<Integer, DefaultListModel<Word>> wordList = new HashMap<>();
+	// edit word menu components
 	private JLabel wordLabel, soundLabel, recordLengthLabel, sentenceLabel, levelLabel;
 	private JTextField wordField, levelField, recordLengthField;
 	private JButton previewSound, recordSound, previewSentence, recordSentence, saveButton, cancelButton;
+	// edit word menu data
 	private String currentSpelling;
 	private Integer currentLevel;
 
 	public Editor() {
-		// load words and create levels
+		// load words into lists and create levels
 		loadWords();
-		// ==========set up frame==========
+		// ==========set up frame and main menu==========
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // FUTURE warn before closing, cancel edit word upon close
 		mainMenu.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		mainMenu.setLayout(new GridBagLayout());
@@ -50,6 +53,7 @@ public class Editor {
 		levels.addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
+				// TODO prevent user from clicking remove or edit buttons when no word is selected
 				if (!e.getValueIsAdjusting()) {
 					if (!levelList.isEmpty()) {
 						Integer key = levels.getSelectedValue();
@@ -160,6 +164,7 @@ public class Editor {
 		frame.setVisible(true);
 	}
 	
+	// XXX not using anymore because we are loading sound files by file name now
 	/*
 	 * get set of key-value pairs of name of sound file and associated clip
 	 * @param audioFolder
@@ -198,8 +203,10 @@ public class Editor {
 	 * put words from word files into class attributes (lists)
 	 */
 	private void loadWords() {
+		// clear existing contents
 		levelList.clear();
 		wordList.clear();
+		// set up level files
 		File wordFolder = new File("Words");
 		File[] levelFiles = wordFolder.listFiles();
 		for (File levelFile: levelFiles) {
@@ -262,6 +269,7 @@ public class Editor {
 		catch (FileNotFoundException ex) {
 
 		}
+		// delete copy (and level after removing last word)
 		System.gc();
 		levelCopy.delete();
 		if (lastRemoved) {
@@ -275,6 +283,7 @@ public class Editor {
 	 * @param level
 	 */
 	private void addWord(String word, Integer level) {
+		// set up files
 		File wordLevel = new File("Words/" + level.toString() + ".txt");
 		File levelCopy = new File("Words/copy.txt");
 		try {
@@ -305,6 +314,7 @@ public class Editor {
 		catch (FileNotFoundException ex) {
 
 		}
+		// delete copy
 		System.gc();
 		levelCopy.delete();
 	}
@@ -313,6 +323,7 @@ public class Editor {
 	
 	/**
 	 * Attached to add and edit buttons
+	 * Opens word edit window
 	 */
 	private class OpenEditMenu implements ActionListener {
 		@Override
@@ -335,6 +346,7 @@ public class Editor {
 				levelField.setText(currentLevel.toString());
 			}
 			else {
+				// adding word: put blank info
 				wordField.setText("");
 				levelField.setText("");
 				previewSound.setEnabled(false);
@@ -342,6 +354,7 @@ public class Editor {
 				currentSpelling = null;
 			}
 			recordLengthField.setText("3");
+			// change to edit menu
 			frame.setContentPane(editMenu);
 			frame.pack();
 			if (e.getActionCommand().equals("add")) {
@@ -354,6 +367,7 @@ public class Editor {
 	
 	/**
 	 * Attached to save and cancel buttons
+	 * Closes word edit window
 	 */
 	private class CloseEditMenu implements ActionListener {
 		@Override
@@ -371,6 +385,7 @@ public class Editor {
 				updatedSentence.delete();
 			}
 			else {
+				// rename temp files
 				newSound.delete();
 				updatedSound.renameTo(newSound);
 				newSentence.delete();
@@ -389,6 +404,7 @@ public class Editor {
 				levels.setModel(levelList);
 				words.setModel(new DefaultListModel<>());
 			}
+			// switch back to main menu
 			frame.setContentPane(mainMenu);
 			frame.pack();
 			frame.setTitle("Editor");
@@ -398,6 +414,7 @@ public class Editor {
 	
 	/**
 	 * Attached to preview buttons
+	 * Play current sound file
 	 */
 	private class PreviewSound implements ActionListener {
 		@Override
@@ -428,6 +445,7 @@ public class Editor {
 	
 	/**
 	 * Attached to record buttons
+	 * Record new sound
 	 */
 	private class RecordSound implements ActionListener {
 		@Override
