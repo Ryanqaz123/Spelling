@@ -22,7 +22,7 @@ public class Editor {
 	private DefaultListModel<Integer> levelList = new DefaultListModel<>();
 	private HashMap<Integer, DefaultListModel<Word>> wordList = new HashMap<>();
 	// edit word menu components
-	private JLabel wordLabel, soundLabel, recordLengthLabel, sentenceLabel, levelLabel;
+	private JLabel wordLabel, soundLabel, recordLengthLabel, sentenceLabel, levelLabel, statusLabel;
 	private JTextField wordField, levelField, recordLengthField;
 	private JButton previewSound, recordSound, previewSentence, recordSentence, saveButton, cancelButton;
 	// edit word menu data
@@ -34,6 +34,7 @@ public class Editor {
 		loadWords();
 		// ==========set up frame and main menu==========
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // FUTURE warn before closing, cancel edit word upon close
+		// FUTURE sort words in list
 		mainMenu.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		mainMenu.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
@@ -47,13 +48,15 @@ public class Editor {
 		levels = new JList<>(levelList);
 		levels.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		levels.setVisibleRowCount(-1);
-		levels.setFixedCellWidth(30);
+		levels.setPrototypeCellValue(levelList.lastElement());
+		if (levels.getFixedCellWidth() < 30) {
+			levels.setFixedCellWidth(30);
+		}
 		DefaultListCellRenderer renderer = (DefaultListCellRenderer) levels.getCellRenderer();
 		renderer.setHorizontalAlignment(SwingConstants.CENTER);
 		levels.addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				// TODO prevent user from clicking remove or edit buttons when no word is selected
 				if (!e.getValueIsAdjusting()) {
 					if (!levelList.isEmpty()) {
 						Integer key = levels.getSelectedValue();
@@ -75,6 +78,21 @@ public class Editor {
 		c.gridy = 2;
 		c.gridheight = 3;
 		words = new JList<>();
+		words.addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				if (!e.getValueIsAdjusting()) {
+					if (words.getSelectedValue() == null) {
+						editWord.setEnabled(false);
+						removeWord.setEnabled(false);
+					}
+					else {
+						editWord.setEnabled(true);
+						removeWord.setEnabled(true);
+					}
+				}
+			}
+		});
 		wordPane = new JScrollPane(words);
 		wordPane.setMinimumSize(new Dimension(150, 200));
 		wordPane.setPreferredSize(new Dimension(150, 200));
@@ -83,9 +101,13 @@ public class Editor {
 		c.gridx = 1;
 		c.gridheight = 1;
 		mainMenu.add(removeWord, c);
+		removeWord.addActionListener(new RemoveWordListener());
+		removeWord.setActionCommand("remove");
 		c.gridx = 2;
 		mainMenu.add(dontRemove, c);
 		dontRemove.setVisible(false);
+		dontRemove.addActionListener(new RemoveWordListener());
+		dontRemove.setActionCommand("cancel");
 		c.gridx = 1;
 		c.gridy = 3;
 		mainMenu.add(editWord, c);
@@ -95,6 +117,8 @@ public class Editor {
 		mainMenu.add(addWord, c);
 		addWord.addActionListener(new OpenEditMenu());
 		addWord.setActionCommand("add");
+		editWord.setEnabled(false);
+		removeWord.setEnabled(false);
 		// ==========Edit menu==========
 		editMenu.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		editMenu.setLayout(new GridBagLayout());
@@ -109,13 +133,18 @@ public class Editor {
 		sentenceLabel = new JLabel("Sentence");
 		editMenu.add(sentenceLabel, c);
 		c.gridy++;
-		recordLengthLabel = new JLabel("Record Length");
+		recordLengthLabel = new JLabel("Record Time (3 to 30 sec.)");
 		editMenu.add(recordLengthLabel, c);
 		c.gridy++;
 		levelLabel = new JLabel("Level");
 		editMenu.add(levelLabel, c);
-		c.gridy++; c.gridx++;
+		c.gridy += 2;
+		c.gridwidth = 3;
+		statusLabel = new JLabel(" ");
+		editMenu.add(statusLabel, c);
 		// save and cancel buttons
+		c.gridy--; c.gridx++;
+		c.gridwidth = 1;
 		saveButton = new JButton("Save");
 		editMenu.add(saveButton, c);
 		saveButton.addActionListener(new CloseEditMenu());
@@ -164,41 +193,6 @@ public class Editor {
 		frame.setVisible(true);
 	}
 	
-	// XXX not using anymore because we are loading sound files by file name now
-	/*
-	 * get set of key-value pairs of name of sound file and associated clip
-	 * @param audioFolder
-	 * @return
-	 */
-	/*public static HashMap<String, Clip> getClips(String audioFolder){
-		HashMap<String, Clip> clipMap = new HashMap<>();
-		File soundDirectory = new File(audioFolder);
-		File[] soundFiles = soundDirectory.listFiles();
-		for (File audioFile: soundFiles) {
-			try {
-				AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
-				AudioFormat format = audioStream.getFormat();
-				DataLine.Info info = new DataLine.Info(Clip.class, format);
-				String soundFileName = audioFile.getName();
-				clipMap.put(soundFileName.substring(0, soundFileName.indexOf(".")), (Clip) AudioSystem.getLine(info));
-			}
-			catch (UnsupportedAudioFileException ex) {
-				System.out.println("The specified audio file is not supported.");
-				ex.printStackTrace();
-			}
-			catch (LineUnavailableException ex) {
-				System.out.println("Audio line for playing back is unavailable.");
-				ex.printStackTrace();
-			}
-			catch (IOException ex) {
-				System.out.println("Error playing the audio file.");
-				ex.printStackTrace();
-			}
-		}
-		return clipMap;
-	}
-	*/
-	
 	/**
 	 * put words from word files into class attributes (lists)
 	 */
@@ -209,11 +203,13 @@ public class Editor {
 		// set up level files
 		File wordFolder = new File("Words");
 		File[] levelFiles = wordFolder.listFiles();
-		for (File levelFile: levelFiles) {
+		int[] levelNumbers = new int[levelFiles.length];
+		for (int i = 0; i < levelFiles.length; i++) {
 			// load level
+			File levelFile = levelFiles[i];
 			String fileName = levelFile.getName();
-			Integer levelNum = Integer.valueOf(fileName.substring(0, fileName.indexOf(".")));
-			levelList.addElement(levelNum);
+			int levelNum = Integer.parseInt(fileName.substring(0, fileName.indexOf(".")));
+			levelNumbers[i] = levelNum;
 			// load words in level
 			DefaultListModel<Word> levelWordList = new DefaultListModel<>();
 			try (Scanner levelScanner = new Scanner(levelFile)) {
@@ -227,6 +223,10 @@ public class Editor {
 			}
 			wordList.put(levelNum, levelWordList);
 		}
+		Arrays.sort(levelNumbers);
+		for (int levelNum: levelNumbers) {
+			levelList.addElement(Integer.valueOf(levelNum));
+		}
 	}
 	
 	/**
@@ -234,10 +234,10 @@ public class Editor {
 	 * @param word
 	 * @param level
 	 */
-	private void removeWord(String word, Integer level) {
+	private void deleteWord(String word, Integer level) {
 		// set up files
 		File wordLevel = new File("Words/" + level.toString() + ".txt");
-		File levelCopy = new File("Words/copy.txt");
+		File levelCopy = new File("word_copy.txt");
 		try {
 			levelCopy.createNewFile();
 		}
@@ -285,24 +285,24 @@ public class Editor {
 	private void addWord(String word, Integer level) {
 		// set up files
 		File wordLevel = new File("Words/" + level.toString() + ".txt");
-		File levelCopy = new File("Words/copy.txt");
+		File levelCopy = new File("word_copy.txt");
 		try {
+			wordLevel.createNewFile();
 			levelCopy.createNewFile();
 		}
 		catch (IOException ex) {
 			
 		}
-		// copy level with extra word
 		try (Scanner levelScanner = new Scanner(wordLevel);
 				PrintWriter copyPrinter = new PrintWriter(levelCopy);){
+			copyPrinter.println(word);
 			while (levelScanner.hasNextLine()) {
 				String nextWord = levelScanner.nextLine();
 				copyPrinter.println(nextWord);
 			}
-			copyPrinter.println(word);
 		}
 		catch (FileNotFoundException ex) {
-
+			
 		}
 		// copy back to level
 		try (Scanner copyScanner = new Scanner(levelCopy);
@@ -319,7 +319,44 @@ public class Editor {
 		levelCopy.delete();
 	}
 	
-	// TODO implement remove word, confirm remove
+	/**
+	 * Attached to remove word
+	 * Prompts confirm/cancel, cancels remove upon cancellation, or removes word upon confirmation
+	 */
+	private class RemoveWordListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// prompt confirm or cancel
+			if (e.getActionCommand().equals("remove")) {
+				removeWord.setText("Confirm");
+				removeWord.setActionCommand("confirm");
+				dontRemove.setVisible(true);
+			}
+			// remove word
+			else if (e.getActionCommand().equals("confirm")) {
+				removeWord.setText("Remove");
+				removeWord.setActionCommand("remove");
+				dontRemove.setVisible(false);
+				Integer currentLevel = levels.getSelectedValue();
+				String oldSpelling = words.getSelectedValue().getWord();
+				File oldSound = new File("Recordings/" + oldSpelling + ".wav");
+				File oldSentence = new File("Sentences/" + oldSpelling + ".wav");
+				System.gc();
+				deleteWord(oldSpelling, currentLevel);
+				oldSound.delete();
+				oldSentence.delete();
+				loadWords();
+				levels.setModel(levelList);
+				words.setModel(new DefaultListModel<>());
+			}
+			// cancel remove
+			else if (e.getActionCommand().equals("cancel")) {
+				removeWord.setText("Remove");
+				removeWord.setActionCommand("remove");
+				dontRemove.setVisible(false);
+			}
+		}
+	}
 	
 	/**
 	 * Attached to add and edit buttons
@@ -353,7 +390,8 @@ public class Editor {
 				previewSentence.setEnabled(false);
 				currentSpelling = null;
 			}
-			recordLengthField.setText("3");
+			recordLengthField.setText("3.0");
+			statusLabel.setText(" ");
 			// change to edit menu
 			frame.setContentPane(editMenu);
 			frame.pack();
@@ -372,14 +410,62 @@ public class Editor {
 	private class CloseEditMenu implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO make sure all information is present before saving, including no duplicate words
 			// FUTURE confirm cancel
-			// delete temp files
-			System.gc();
 			File newSound = new File("Recordings/" + wordField.getText() + ".wav");
 			File updatedSound = new File("temp_word.wav");
 			File newSentence = new File("Sentences/" + wordField.getText() + ".wav");
 			File updatedSentence = new File("temp_sentence.wav");
+			// input validation
+			if (e.getActionCommand().equals("save")) {
+				// check that word is there
+				String newSpelling = wordField.getText();
+				if (newSpelling.isEmpty()) {
+					statusLabel.setText("Word not provided");
+					return;
+				}
+				// check that word contains only letters
+				// FUTURE allow hyphens in middle, allow spaces in middle (spaces require extra handling to convert to and from underscores in filenames)
+				/*if (!newSpelling.matches("[A-Za-z]|[A-Za-z][A-Za-z-]*[A-Za-z]")) {
+					statusLabel.setText("Word contains non-letter characters");
+					return;
+				}*/
+				if (!newSpelling.matches("[A-Za-z]+")) {
+					statusLabel.setText("Word contains non-letter characters");
+					return;
+				}
+				// check that word does not already exist
+				if (currentSpelling == null
+						|| (currentSpelling != null && !currentSpelling.equals(newSpelling))) {
+					if (newSound.exists()) {
+						statusLabel.setText("Word already exists");
+						return;
+					}
+				}
+				// check for pronunciation and sentence files for new words
+				if (currentSpelling == null) {
+					if (!updatedSound.exists()) {
+						statusLabel.setText("Pronunciation is missing");
+						return;
+					}
+					if (!updatedSentence.exists()) {
+						statusLabel.setText("Sentence is missing");
+						return;
+					}
+				}
+				// check that level number is okay
+				try {
+					int levelNumber = Integer.parseInt(levelField.getText());
+					if (levelNumber <= 0) {
+						throw new NumberFormatException();
+					}
+				}
+				catch (NumberFormatException ex) {
+					statusLabel.setText("Malformed level (should be a positive integer)");
+					return;
+				}
+			}
+			// delete temp files
+			System.gc();
 			if (e.getActionCommand().equals("cancel")) {
 				updatedSound.delete();
 				updatedSentence.delete();
@@ -394,11 +480,22 @@ public class Editor {
 			if (e.getActionCommand().equals("save")) {
 				// update word list
 				String newWord = wordField.getText();
+				//newWord.replace(' ',  '_');
 				Integer newLevel = Integer.parseInt(levelField.getText());
-				if (!currentSpelling.equals(wordField.getText())
-						|| !currentLevel.equals(newLevel)) {
-					removeWord(currentSpelling, currentLevel);
+				if (currentSpelling != null && (!currentSpelling.equals(newWord)
+						|| !currentLevel.equals(newLevel))) {
+					deleteWord(currentSpelling, currentLevel);
 					addWord(newWord, newLevel);
+				}
+				else if (currentSpelling == null) {
+					addWord(newWord, newLevel);
+				}
+				// delete old sound files
+				if (currentSpelling != null && !currentSpelling.equals(newWord)) {
+					File oldSound = new File("Recordings/" + currentSpelling + ".wav");
+					File oldSentence = new File("Sentences/" + currentSpelling + ".wav");
+					oldSound.delete();
+					oldSentence.delete();
 				}
 				loadWords();
 				levels.setModel(levelList);
@@ -461,7 +558,7 @@ public class Editor {
 			// try to capture sound
 			try {
 				long recordTime = (long)(Double.parseDouble(recordLengthField.getText()) * 1000);
-				if (recordTime > 30000 || recordTime <= 0) {
+				if (recordTime > 30000 || recordTime < 3000) {
 					throw new Exception();
 				}
 				recorder.startCapture(recordTime);
