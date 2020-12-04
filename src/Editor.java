@@ -10,6 +10,8 @@ public class Editor {
 	
 	// frames and panels
 	private JFrame frame = new JFrame("Editor");
+	private JDialog editDialog = new JDialog(frame);
+	private boolean editDialogSavedCancelled;
 	private JPanel mainMenu = new JPanel(), editMenu = new JPanel();
 	// main menu components
 	private JLabel levelListLabel = new JLabel("Select level: "),
@@ -38,8 +40,7 @@ public class Editor {
 		// load words into lists and create levels
 		loadWords();
 		// ==========set up frame and main menu==========
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // FUTURE warn before closing, cancel edit word upon close
-		// FUTURE sort words in list
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainMenu.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		mainMenu.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
@@ -175,6 +176,27 @@ public class Editor {
 		editMenu.add(recordSentence, c);
 		recordSentence.addActionListener(new RecordSound());
 		recordSentence.setActionCommand("sentence");
+		editDialog.setContentPane(editMenu);
+		editDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		editDialog.addWindowListener(new WindowListener() {
+			public void windowActivated(WindowEvent e) {}
+			public void windowClosed(WindowEvent e) {}
+			public void windowClosing(WindowEvent e) {
+				if (!editDialogSavedCancelled) {
+					File updatedSound = new File("temp_word.wav");
+					File updatedSentence = new File("temp_sentence.wav");
+					System.gc();
+					updatedSound.delete();
+					updatedSentence.delete();
+					frame.setEnabled(true);
+					editDialog.setVisible(false);
+				}
+			}
+			public void windowDeactivated(WindowEvent e) {}
+			public void windowDeiconified(WindowEvent e) {}
+			public void windowIconified(WindowEvent e) {}
+			public void windowOpened(WindowEvent e) {}
+		});
 		// set main menu
 		frame.setContentPane(mainMenu);
 		frame.pack();
@@ -208,6 +230,15 @@ public class Editor {
 			}
 			catch (FileNotFoundException ex1) {
 				
+			}
+			String[] levelWordArray = new String[levelWordList.size()];
+			for (int j = 0; j < levelWordList.size(); j++) {
+				levelWordArray[j] = levelWordList.get(j);
+			}
+			Arrays.sort(levelWordArray);
+			levelWordList = new DefaultListModel<>();
+			for (String spelling: levelWordArray) {
+				levelWordList.addElement(spelling);
 			}
 			wordList.put(levelNum, levelWordList);
 		}
@@ -359,6 +390,7 @@ public class Editor {
 	private class OpenEditMenu implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			editDialogSavedCancelled = false;
 			// load current word if necessary
 			// audio clips can be loaded by file
 			File newSound = new File("temp_word.wav");
@@ -373,7 +405,7 @@ public class Editor {
 				currentLevel = levels.getSelectedValue();
 				wordField.setText(currentSpelling);
 				levelField.setText(currentLevel.toString());
-				frame.setTitle("Edit " + currentSpelling);
+				editDialog.setTitle("Edit " + currentSpelling);
 			}
 			else {
 				// adding word: put blank info
@@ -382,13 +414,14 @@ public class Editor {
 				previewSound.setEnabled(false);
 				previewSentence.setEnabled(false);
 				currentSpelling = null;
-				frame.setTitle("Add Word");
+				editDialog.setTitle("Add Word");
 			}
 			recordLengthField.setText("3.0");
 			statusLabel.setText(" ");
 			// change to edit menu
-			frame.setContentPane(editMenu);
-			frame.pack();
+			editDialog.pack();
+			frame.setEnabled(false);
+			editDialog.setVisible(true);
 		}
 	}
 	
@@ -399,7 +432,7 @@ public class Editor {
 	private class CloseEditMenu implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// FUTURE confirm cancel
+			editDialogSavedCancelled = true;
 			File newSound = new File("Recordings/" + wordField.getText() + ".wav");
 			File updatedSound = new File("temp_word.wav");
 			File newSentence = new File("Sentences/" + wordField.getText() + ".wav");
@@ -450,11 +483,17 @@ public class Editor {
 			}
 			System.gc();
 			if (e.getActionCommand().equals("save")) {
-				// rename temp files
-				newSound.delete();
-				updatedSound.renameTo(newSound);
-				newSentence.delete();
-				updatedSentence.renameTo(newSentence);
+				// rename temp files if they exist
+				boolean soundRenamed = false;
+				if (updatedSound.exists()) {
+					newSound.delete();
+					soundRenamed = updatedSound.renameTo(newSound);
+				}
+				boolean sentenceRenamed = false;
+				if (updatedSentence.exists()) {
+					newSentence.delete();
+					sentenceRenamed = updatedSentence.renameTo(newSentence);
+				}
 				// update word list
 				String newWord = wordField.getText();
 				Integer newLevel = Integer.parseInt(levelField.getText());
@@ -466,12 +505,20 @@ public class Editor {
 				else if (currentSpelling == null) {
 					addWord(newWord, newLevel);
 				}
-				// delete old sound files
+				// delete or rename old sound files
 				if (currentSpelling != null && !currentSpelling.equals(newWord)) {
 					File oldSound = new File("Recordings/" + currentSpelling + ".wav");
 					File oldSentence = new File("Sentences/" + currentSpelling + ".wav");
-					oldSound.delete();
-					oldSentence.delete();
+					if (soundRenamed) {
+						oldSound.delete();
+					} else {
+						oldSound.renameTo(newSound);
+					}
+					if (sentenceRenamed) {
+						oldSentence.delete();
+					} else {
+						oldSentence.renameTo(newSentence);
+					}
 				}
 				loadWords();
 				levels.setModel(levelList);
@@ -483,10 +530,8 @@ public class Editor {
 				updatedSentence.delete();
 			}
 			// switch back to main menu
-			frame.setContentPane(mainMenu);
-			frame.pack();
-			frame.setTitle("Editor");
-			
+			frame.setEnabled(true);
+			editDialog.setVisible(false);
 		}
 	}
 	
