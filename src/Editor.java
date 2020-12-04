@@ -4,7 +4,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import java.io.*;
-// import javax.sound.sampled.*;
 
 public class Editor {
 	
@@ -14,13 +13,13 @@ public class Editor {
 	// main menu components
 	private JLabel levelListLabel, wordListLabel;
 	private JList<Integer> levels;
-	private JList<Word> words;
+	private JList<String> words;
 	private JScrollPane levelPane, wordPane;
 	private JButton addWord = new JButton("Add"), editWord = new JButton("Edit"),
 			removeWord = new JButton("Remove"), dontRemove = new JButton("Cancel");
 	// main menu data
 	private DefaultListModel<Integer> levelList = new DefaultListModel<>();
-	private HashMap<Integer, DefaultListModel<Word>> wordList = new HashMap<>();
+	private HashMap<Integer, DefaultListModel<String>> wordList = new HashMap<>();
 	// edit word menu components
 	private JLabel wordLabel, soundLabel, recordLengthLabel, sentenceLabel, levelLabel, statusLabel;
 	private JTextField wordField, levelField, recordLengthField;
@@ -211,11 +210,11 @@ public class Editor {
 			int levelNum = Integer.parseInt(fileName.substring(0, fileName.indexOf(".")));
 			levelNumbers[i] = levelNum;
 			// load words in level
-			DefaultListModel<Word> levelWordList = new DefaultListModel<>();
+			DefaultListModel<String> levelWordList = new DefaultListModel<>();
 			try (Scanner levelScanner = new Scanner(levelFile)) {
 				while (levelScanner.hasNextLine()) {
 					 String spelling = levelScanner.nextLine();
-					 levelWordList.addElement(new Word(spelling));
+					 levelWordList.addElement(spelling);
 				}
 			}
 			catch (FileNotFoundException ex1) {
@@ -338,7 +337,7 @@ public class Editor {
 				removeWord.setActionCommand("remove");
 				dontRemove.setVisible(false);
 				Integer currentLevel = levels.getSelectedValue();
-				String oldSpelling = words.getSelectedValue().getWord();
+				String oldSpelling = words.getSelectedValue();
 				File oldSound = new File("Recordings/" + oldSpelling + ".wav");
 				File oldSentence = new File("Sentences/" + oldSpelling + ".wav");
 				System.gc();
@@ -373,14 +372,13 @@ public class Editor {
 			newSound.delete();
 			newSentence.delete();
 			// load word info if available
-			Word currentWord = null;
 			currentLevel = -1;
 			if (e.getActionCommand().equals("edit")) {
-				currentWord = words.getSelectedValue();
+				currentSpelling = words.getSelectedValue();
 				currentLevel = levels.getSelectedValue();
-				currentSpelling = currentWord.getWord();
 				wordField.setText(currentSpelling);
 				levelField.setText(currentLevel.toString());
+				frame.setTitle("Edit " + currentSpelling);
 			}
 			else {
 				// adding word: put blank info
@@ -389,17 +387,13 @@ public class Editor {
 				previewSound.setEnabled(false);
 				previewSentence.setEnabled(false);
 				currentSpelling = null;
+				frame.setTitle("Add Word");
 			}
 			recordLengthField.setText("3.0");
 			statusLabel.setText(" ");
 			// change to edit menu
 			frame.setContentPane(editMenu);
 			frame.pack();
-			if (e.getActionCommand().equals("add")) {
-				frame.setTitle("Add Word");
-			} else {
-				frame.setTitle("Edit " + currentWord.getWord());
-			}
 		}
 	}
 	
