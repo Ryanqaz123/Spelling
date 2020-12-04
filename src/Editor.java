@@ -251,7 +251,10 @@ public class Editor {
 				PrintWriter levelPrinter = new PrintWriter(wordLevel);){
 			while (copyScanner.hasNextLine()) {
 				lastRemoved = false;
-				levelPrinter.println(copyScanner.nextLine());
+				levelPrinter.print(copyScanner.nextLine());
+				if (copyScanner.hasNextLine()) {
+					levelPrinter.println();
+				}
 			}
 		}
 		catch (FileNotFoundException ex) {
@@ -281,13 +284,13 @@ public class Editor {
 		catch (IOException ex) {
 			
 		}
+		// copy level with extra word
 		try (Scanner levelScanner = new Scanner(wordLevel);
 				PrintWriter copyPrinter = new PrintWriter(levelCopy);){
-			copyPrinter.println(word);
 			while (levelScanner.hasNextLine()) {
-				String nextWord = levelScanner.nextLine();
-				copyPrinter.println(nextWord);
+				copyPrinter.println(levelScanner.nextLine());
 			}
+			copyPrinter.print(word);
 		}
 		catch (FileNotFoundException ex) {
 			
@@ -296,7 +299,10 @@ public class Editor {
 		try (Scanner copyScanner = new Scanner(levelCopy);
 				PrintWriter levelPrinter = new PrintWriter(wordLevel);){
 			while (copyScanner.hasNextLine()) {
-				levelPrinter.println(copyScanner.nextLine());
+				levelPrinter.print(copyScanner.nextLine());
+				if (copyScanner.hasNextLine()) {
+					levelPrinter.println();
+				}
 			}
 		}
 		catch (FileNotFoundException ex) {
