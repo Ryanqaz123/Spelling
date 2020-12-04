@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import java.io.*;
+import javax.sound.sampled.*;
 
 public class Editor {
 	
@@ -11,7 +12,8 @@ public class Editor {
 	private JFrame frame = new JFrame("Editor");
 	private JPanel mainMenu = new JPanel(), editMenu = new JPanel();
 	// main menu components
-	private JLabel levelListLabel, wordListLabel;
+	private JLabel levelListLabel = new JLabel("Select level: "),
+			wordListLabel = new JLabel("Select Word:");
 	private JList<Integer> levels;
 	private JList<String> words;
 	private JScrollPane levelPane, wordPane;
@@ -21,9 +23,13 @@ public class Editor {
 	private DefaultListModel<Integer> levelList = new DefaultListModel<>();
 	private HashMap<Integer, DefaultListModel<String>> wordList = new HashMap<>();
 	// edit word menu components
-	private JLabel wordLabel, soundLabel, recordLengthLabel, sentenceLabel, levelLabel, statusLabel;
-	private JTextField wordField, levelField, recordLengthField;
-	private JButton previewSound, recordSound, previewSentence, recordSentence, saveButton, cancelButton;
+	private JLabel wordLabel = new JLabel("Spelling"), soundLabel = new JLabel("Pronunciation"),
+			recordLengthLabel = new JLabel("Recording time (3 to 15 sec.)"),
+			sentenceLabel = new JLabel("Sentence"), levelLabel = new JLabel("Level"), statusLabel = new JLabel(" ");
+	private JTextField wordField = new JTextField(8), levelField = new JTextField(5), recordLengthField = new JTextField(5);
+	private JButton previewSound = new JButton("Preview"), recordSound = new JButton("Record"),
+			previewSentence= new JButton("Preview"), recordSentence = new JButton("Record"),
+			saveButton = new JButton("Save"), cancelButton = new JButton("Cancel");
 	// edit word menu data
 	private String currentSpelling;
 	private Integer currentLevel;
@@ -40,7 +46,6 @@ public class Editor {
 		// level list
 		c.gridx = 0;
 		c.gridy = 0;
-		levelListLabel = new JLabel("Select level: ");
 		mainMenu.add(levelListLabel, c);
 		c.gridx = 1;
 		c.gridwidth = 2;
@@ -65,14 +70,13 @@ public class Editor {
 			}
 		});
 		levelPane = new JScrollPane(levels);
-		levelPane.setMinimumSize(new Dimension(200, 50));
-		levelPane.setPreferredSize(new Dimension(200, 50));
+		levelPane.setMinimumSize(new Dimension(210, 50));
+		levelPane.setPreferredSize(new Dimension(210, 50));
 		mainMenu.add(levelPane, c);
 		// word list
 		c.gridwidth = 1;
 		c.gridx = 0;
 		c.gridy = 1;
-		wordListLabel = new JLabel("Select Word:");
 		mainMenu.add(wordListLabel, c);
 		c.gridy = 2;
 		c.gridheight = 3;
@@ -93,8 +97,8 @@ public class Editor {
 			}
 		});
 		wordPane = new JScrollPane(words);
-		wordPane.setMinimumSize(new Dimension(150, 200));
-		wordPane.setPreferredSize(new Dimension(150, 200));
+		wordPane.setMinimumSize(new Dimension(150, 210));
+		wordPane.setPreferredSize(new Dimension(150, 210));
 		mainMenu.add(wordPane, c);
 		// buttons
 		c.gridx = 1;
@@ -122,67 +126,52 @@ public class Editor {
 		editMenu.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		editMenu.setLayout(new GridBagLayout());
 		// labels
-		wordLabel = new JLabel("Spelling");
 		c.gridx = 0; c.gridy = 0;
 		editMenu.add(wordLabel, c);
 		c.gridy++;
-		soundLabel = new JLabel("Pronunciation");
 		editMenu.add(soundLabel, c);
 		c.gridy++;
-		sentenceLabel = new JLabel("Sentence");
 		editMenu.add(sentenceLabel, c);
 		c.gridy++;
-		recordLengthLabel = new JLabel("Record Time (3 to 30 sec.)");
 		editMenu.add(recordLengthLabel, c);
 		c.gridy++;
-		levelLabel = new JLabel("Level");
 		editMenu.add(levelLabel, c);
 		c.gridy += 2;
 		c.gridwidth = 3;
-		statusLabel = new JLabel(" ");
 		editMenu.add(statusLabel, c);
 		// save and cancel buttons
 		c.gridy--; c.gridx++;
 		c.gridwidth = 1;
-		saveButton = new JButton("Save");
 		editMenu.add(saveButton, c);
 		saveButton.addActionListener(new CloseEditMenu());
 		saveButton.setActionCommand("save");
 		c.gridx++;
-		cancelButton = new JButton("Cancel");
 		editMenu.add(cancelButton, c);
 		cancelButton.addActionListener(new CloseEditMenu());
 		cancelButton.setActionCommand("cancel");
 		// text fields
 		c.gridx = 1; c.gridy = 0;
 		c.gridwidth = 2;
-		wordField = new JTextField(8);
 		editMenu.add(wordField, c);
 		c.gridy = 3;
 		c.gridwidth = 1;
-		recordLengthField = new JTextField(5);
 		editMenu.add(recordLengthField, c);
 		c.gridy = 4;
-		levelField = new JTextField(5);
 		editMenu.add(levelField, c);
 		// preview and record sound buttons
 		c.gridy = 1;
-		previewSound = new JButton("Preview");
 		editMenu.add(previewSound, c);
 		previewSound.addActionListener(new PreviewSound());
 		previewSound.setActionCommand("spelling");
 		c.gridx++;
-		recordSound = new JButton("Record");
 		editMenu.add(recordSound, c);
 		recordSound.addActionListener(new RecordSound());
 		recordSound.setActionCommand("spelling");
 		c.gridx = 1; c.gridy = 2;
-		previewSentence = new JButton("Preview");
 		editMenu.add(previewSentence, c);
 		previewSentence.addActionListener(new PreviewSound());
 		previewSentence.setActionCommand("sentence");
 		c.gridx++;
-		recordSentence = new JButton("Record");
 		editMenu.add(recordSentence, c);
 		recordSentence.addActionListener(new RecordSound());
 		recordSentence.setActionCommand("sentence");
@@ -409,8 +398,8 @@ public class Editor {
 			File updatedSound = new File("temp_word.wav");
 			File newSentence = new File("Sentences/" + wordField.getText() + ".wav");
 			File updatedSentence = new File("temp_sentence.wav");
-			// input validation
 			if (e.getActionCommand().equals("save")) {
+				// input validation
 				// check that word is there
 				String newSpelling = wordField.getText();
 				if (newSpelling.isEmpty()) {
@@ -418,11 +407,6 @@ public class Editor {
 					return;
 				}
 				// check that word contains only letters
-				// FUTURE allow hyphens in middle, allow spaces in middle (spaces require extra handling to convert to and from underscores in filenames)
-				/*if (!newSpelling.matches("[A-Za-z]|[A-Za-z][A-Za-z-]*[A-Za-z]")) {
-					statusLabel.setText("Word contains non-letter characters");
-					return;
-				}*/
 				if (!newSpelling.matches("[A-Za-z]+")) {
 					statusLabel.setText("Word contains non-letter characters");
 					return;
@@ -458,23 +442,15 @@ public class Editor {
 					return;
 				}
 			}
-			// delete temp files
 			System.gc();
-			if (e.getActionCommand().equals("cancel")) {
-				updatedSound.delete();
-				updatedSentence.delete();
-			}
-			else {
+			if (e.getActionCommand().equals("save")) {
 				// rename temp files
 				newSound.delete();
 				updatedSound.renameTo(newSound);
 				newSentence.delete();
 				updatedSentence.renameTo(newSentence);
-			}
-			if (e.getActionCommand().equals("save")) {
 				// update word list
 				String newWord = wordField.getText();
-				//newWord.replace(' ',  '_');
 				Integer newLevel = Integer.parseInt(levelField.getText());
 				if (currentSpelling != null && (!currentSpelling.equals(newWord)
 						|| !currentLevel.equals(newLevel))) {
@@ -495,6 +471,11 @@ public class Editor {
 				levels.setModel(levelList);
 				words.setModel(new DefaultListModel<>());
 			}
+			else {
+				// delete temp files upon cancel
+				updatedSound.delete();
+				updatedSentence.delete();
+			}
 			// switch back to main menu
 			frame.setContentPane(mainMenu);
 			frame.pack();
@@ -512,24 +493,35 @@ public class Editor {
 		public void actionPerformed(ActionEvent e) {
 			SoundPlayback player = new SoundPlayback();
 			// find and play sound file
+			File soundFile;
+			String fileName;
 			if (e.getActionCommand().equals("spelling")) {
-				File soundFile = new File("temp_word.wav");
-				if (currentSpelling == null || soundFile.exists()) {
-					player.play("temp_word.wav");
-				}
-				else {
-					player.play("Recordings/" + currentSpelling + ".wav");
+				fileName = "temp_word.wav";
+				soundFile = new File(fileName);
+				// play current recording if word exists and a new recording hasn't been made
+				if (!(currentSpelling == null || soundFile.exists())) {
+					fileName = "Recordings/" + currentSpelling + ".wav";
 				}
 			}
 			else {
-				File sentenceFile = new File("temp_sentence.wav");
-				if (currentSpelling == null || sentenceFile.exists()) {
-					player.play("temp_sentence.wav");
-				}
-				else {
-					player.play("Recordings/" + currentSpelling + ".wav");
+				fileName = "temp_sentence.wav";
+				soundFile = new File(fileName);
+				if (!(currentSpelling == null || soundFile.exists())) {
+					fileName = "Sentences/" + currentSpelling + ".wav";
 				}
 				
+			}
+			try {
+				player.play(fileName);
+			}
+			catch (UnsupportedAudioFileException ex){
+				statusLabel.setText("Audio file format is not supported");
+			}
+			catch (LineUnavailableException ex) {
+				statusLabel.setText("Audio line for playback is not available");
+			}
+			catch (IOException ex) {
+				statusLabel.setText("Error in playing audio file");
 			}
 		}
 	}
@@ -552,8 +544,8 @@ public class Editor {
 			// try to capture sound
 			try {
 				long recordTime = (long)(Double.parseDouble(recordLengthField.getText()) * 1000);
-				if (recordTime > 30000 || recordTime < 3000) {
-					throw new Exception();
+				if (recordTime > 15000 || recordTime < 3000) {
+					throw new NumberFormatException();
 				}
 				recorder.startCapture(recordTime);
 				if (e.getActionCommand().equals("spelling")) {
@@ -563,8 +555,14 @@ public class Editor {
 					previewSentence.setEnabled(true);
 				}
 			}
-			catch (Exception ex) {
-				
+			catch (NumberFormatException ex) {
+				statusLabel.setText("Please enter a valid recording duration");
+			}
+			catch (LineUnavailableException ex) {
+				statusLabel.setText("Audio line for recording is unavailable or not supported");
+			}
+			catch (IOException ex) {
+				statusLabel.setText("Error in writing to file");
 			}
 		}
 	}

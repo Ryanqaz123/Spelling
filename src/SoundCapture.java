@@ -41,13 +41,14 @@ public class SoundCapture {
     /**
      * Captures the sound and record into a WAV file
      */
-    private void start() {
+    private void start() throws LineUnavailableException, IOException{
         try {
             AudioFormat format = getAudioFormat();
             DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
  
             // checks if system supports the data line
             if (!AudioSystem.isLineSupported(info)) {
+            	throw new LineUnavailableException();
                 //System.out.println("Line not supported");
                 //System.exit(0);
             }
@@ -65,8 +66,10 @@ public class SoundCapture {
             AudioSystem.write(ais, fileType, wavFile);
  
         } catch (LineUnavailableException ex) {
+        	throw ex;
             //ex.printStackTrace();
         } catch (IOException ioe) {
+        	throw ioe;
             //ioe.printStackTrace();
         }
     }
@@ -83,7 +86,7 @@ public class SoundCapture {
     /**
      * Entry to run the program
      */
-    public void startCapture(long recordTime) {
+    public void startCapture(long recordTime) throws LineUnavailableException, IOException{
         // creates a new thread that waits for a specified
         // of time before stopping
         Thread stopper = new Thread(new Runnable() {
@@ -91,14 +94,22 @@ public class SoundCapture {
                 try {
                     Thread.sleep(recordTime);
                 } catch (InterruptedException ex) {
-                    ex.printStackTrace();
+                	
                 }
                 finish();
             }
         });
         stopper.start();
         // start recording
-        start();
+        try {
+        	start();
+        }
+        catch (LineUnavailableException ex) {
+        	throw ex;
+        }
+        catch (IOException ioe) {
+        	throw ioe;
+        }
     }
 
 }

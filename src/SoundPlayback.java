@@ -18,7 +18,7 @@ public class SoundPlayback implements LineListener{
      * Play a given audio file.
      * @param audioFilePath Path of the audio file.
      */
-    public void play(String audioFilePath) {
+    public void play(String audioFilePath) throws UnsupportedAudioFileException, LineUnavailableException, IOException{
         File audioFile = new File(audioFilePath);
         try {
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
@@ -33,20 +33,23 @@ public class SoundPlayback implements LineListener{
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException ex) {
-                    ex.printStackTrace();
+                    //ex.printStackTrace();
                 }
             }
             audioClip.close();
         }
         catch (UnsupportedAudioFileException ex) {
+        	throw ex;
             //System.out.println("The specified audio file is not supported.");
             //ex.printStackTrace();
         }
         catch (LineUnavailableException ex) {
+        	throw ex;
             //System.out.println("Audio line for playing back is unavailable.");
             //ex.printStackTrace();
         }
         catch (IOException ex) {
+        	throw ex;
             //System.out.println("Error playing the audio file.");
             //ex.printStackTrace();
         }
