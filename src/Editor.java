@@ -86,6 +86,7 @@ public class Editor {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				if (!e.getValueIsAdjusting()) {
+					// enable remove/edit buttons
 					if (words.getSelectedValue() == null) {
 						editWord.setEnabled(false);
 						removeWord.setEnabled(false);
@@ -93,6 +94,12 @@ public class Editor {
 					else {
 						editWord.setEnabled(true);
 						removeWord.setEnabled(true);
+					}
+					// discard Confirm/Cancel remove
+					if (dontRemove.isVisible()) {
+						removeWord.setText("Remove");
+						removeWord.setActionCommand("remove");
+						dontRemove.setVisible(false);
 					}
 				}
 			}
@@ -182,6 +189,7 @@ public class Editor {
 			public void windowActivated(WindowEvent e) {}
 			public void windowClosed(WindowEvent e) {}
 			public void windowClosing(WindowEvent e) {
+				// close button
 				if (!editDialogSavedCancelled) {
 					File updatedSound = new File("temp_word.wav");
 					File updatedSentence = new File("temp_sentence.wav");
@@ -391,6 +399,12 @@ public class Editor {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			editDialogSavedCancelled = false;
+			// discard Confirm/Cancel remove
+			if (dontRemove.isVisible()) {
+				removeWord.setText("Remove");
+				removeWord.setActionCommand("remove");
+				dontRemove.setVisible(false);
+			}
 			// load current word if necessary
 			// audio clips can be loaded by file
 			File newSound = new File("temp_word.wav");
@@ -432,7 +446,6 @@ public class Editor {
 	private class CloseEditMenu implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			editDialogSavedCancelled = true;
 			File newSound = new File("Recordings/" + wordField.getText() + ".wav");
 			File updatedSound = new File("temp_word.wav");
 			File newSentence = new File("Sentences/" + wordField.getText() + ".wav");
@@ -454,7 +467,23 @@ public class Editor {
 				if (currentSpelling == null
 						|| (currentSpelling != null && !currentSpelling.equals(newSpelling))) {
 					if (newSound.exists()) {
-						statusLabel.setText("Word already exists");
+						// get level of existing word
+						Integer levelOfExistingWord = null;
+						outer:
+						for (Integer levelNum: wordList.keySet()) {
+							for (Object levelWord: wordList.get(levelNum).toArray()) {
+								if (levelWord.equals(newSpelling)) {
+									levelOfExistingWord = levelNum;
+									break outer;
+								}
+							}
+						}
+						if (levelOfExistingWord != null) {
+							statusLabel.setText("Word already exists (level " + levelOfExistingWord.toString() + ")");
+						}
+						else {
+							statusLabel.setText("Word already exists");
+						}
 						return;
 					}
 				}
@@ -481,6 +510,7 @@ public class Editor {
 					return;
 				}
 			}
+			editDialogSavedCancelled = true;
 			System.gc();
 			if (e.getActionCommand().equals("save")) {
 				// rename temp files if they exist
