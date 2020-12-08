@@ -39,10 +39,10 @@ public class Word {
             i--;
         }
         for (int x = 0; x < (spelling.length() - front.length() - end.length()); x++) {//creates a spacer
-            spacer = spacer + "_";
+            spacer = spacer + spelling.charAt(front.length() + x);
         }
         if (spacer.isEmpty() && wordIdent.length() != front.length() + end.length()) {//indicate whether letters are missing
-            spacer = "_";
+            spacer = "*";
         }
         wordParts = new String[]{front,spacer,end};
         return wordParts;

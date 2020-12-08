@@ -64,10 +64,11 @@ public class Editor {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				if (!e.getValueIsAdjusting()) {
-					if (!levelList.isEmpty()) {
-						Integer key = levels.getSelectedValue();
-						words.setModel(wordList.get(key));
-					}					
+					Integer key = levels.getSelectedValue();
+					DefaultListModel<String> keyList = wordList.get(key);
+					if (keyList != null) {
+						words.setModel(keyList);
+					}
 				}
 			}
 		});
@@ -382,7 +383,12 @@ public class Editor {
 				oldSound.delete();
 				oldSentence.delete();
 				loadWords();
-				levels.setModel(levelList);
+				if (levelList != null) {
+					levels.setModel(levelList);
+				}
+				else {
+					levels.setModel(new DefaultListModel<Integer>());
+				}
 				words.setModel(new DefaultListModel<String>());
 			}
 			// cancel remove
@@ -554,7 +560,12 @@ public class Editor {
 					}
 				}
 				loadWords();
-				levels.setModel(levelList);
+				if (levelList != null) {
+					levels.setModel(levelList);
+				}
+				else {
+					levels.setModel(new DefaultListModel<Integer>());
+				}
 				words.setModel(new DefaultListModel<String>());
 			}
 			else {
