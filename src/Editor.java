@@ -28,7 +28,7 @@ public class Editor {
 	private JLabel wordLabel = new JLabel("Spelling"), soundLabel = new JLabel("Pronunciation"),
 			recordLengthLabel = new JLabel("Recording time (3 to 15 sec.)"),
 			sentenceLabel = new JLabel("Sentence"), levelLabel = new JLabel("Level"), statusLabel = new JLabel(" ");
-	private JTextField wordField = new JTextField(8), levelField = new JTextField(5), recordLengthField = new JTextField(5);
+	private JTextField wordField = new JTextField(10), levelField = new JTextField(5), recordLengthField = new JTextField(5);
 	private JButton previewSound = new JButton("Preview"), recordSound = new JButton("Record"),
 			previewSentence= new JButton("Preview"), recordSentence = new JButton("Record"),
 			saveButton = new JButton("Save"), cancelButton = new JButton("Cancel");

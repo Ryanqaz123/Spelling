@@ -11,7 +11,12 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.text.Highlighter;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.BorderFactory;
+import javax.swing.text.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,19 +24,22 @@ import java.util.HashMap;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
  
 public class Game implements ActionListener {
     private JFrame frame;
     private JPanel menu, menu2, menu3, check, spellingWord, checkSpelling, levelUp, levelUpMax, chooseLevel, levelDown, changeWords;
-    private JLabel menuTitle, menuTitle2, menuTitle3, checkL, wordsSpelledCorrectly, wordsSpelledByUser, wordsCorrectInRow, correctPercentage, congratsNextLvl, congratsMax, lvlDown, level;
+    private JLabel menuTitle, menuTitle2, menuTitle3, checkL, wordsSpelledCorrectly, wordsCorrectInRow, correctPercentage, congratsNextLvl, congratsMax, lvlDown, level;
+    private JTextPane wordsSpelledByUser;
     private JTextField name, returnUser, age, spellWord;
     private JButton start, hearAudio, enterWord, Continue, continueSameLvl, lowerLvl, chooseLvlBack, lvlDownContinue, newP, returningP, resume, yes, no, nextWord, quit;
-    String[] levelStrings = {"Level 1","Level 2","Level 3","Level 4", "Level 5"};
+    private String[] levelStrings = {"Level 1", "Level 2", "Level 3", "Level 4", "Level 5"};
     private JComboBox<String> levels;
-    private HashMap<Integer, Level> levelMap;
-    private ArrayList<Integer> levelList;
+    private HashMap<Integer, Level> levelMap = new HashMap<>();
+    private ArrayList<Integer> levelList = new ArrayList<>();
     private int wordsCorrect = 0, totalWordsSeen = 0, totalWordsCorrect = 0, wordsSeen = 0;
-    private SoundPlayback soundPlayer = new SoundPlayback();
+    private int currentLevelIndex = 0;
+    private Word currentWord;
     //User user;
     // private int PL = user.getLevel();
  
@@ -174,7 +182,8 @@ public class Game implements ActionListener {
         levelDown.add(lvlDownContinue);
  
         String user = spellWord.getText();
-        wordsSpelledByUser = new JLabel("Word Spelled By User: "+ user);
+        wordsSpelledByUser = new JTextPane();
+        wordsSpelledByUser.setText("Word Spelled By User: "+ user);
         wordsSpelledByUser.setFont(new Font("Comic Sans MS", Font.PLAIN, 24));
         wordsSpelledByUser.setBackground(Color.WHITE);
         wordsSpelledByUser.setOpaque(true);
@@ -248,10 +257,12 @@ public class Game implements ActionListener {
             spellingWord.add(quit);
             spellingWord.setVisible(true);
             frame.setContentPane(spellingWord);
+            currentWord = levelMap.get(levelList.get(currentLevelIndex)).getRandWord();
             frame.pack();
         } 
         else if(eventName.equals("check")) {
             String checkString = name.getText();
+            currentLevelIndex = levels.getSelectedIndex();
             menu2.setVisible(false);
             checkL.setText("Is this correct?" + checkString);
             check.setVisible(true);
@@ -263,6 +274,7 @@ public class Game implements ActionListener {
             check.setVisible(false);
             spellingWord.setVisible(true);
             frame.setContentPane(spellingWord);
+            currentWord = levelMap.get(levelList.get(currentLevelIndex)).getRandWord();
             frame.pack();
         }
         else if(eventName.equals("no")) {
@@ -273,6 +285,37 @@ public class Game implements ActionListener {
             frame.pack();
         }
         else if(eventName.equals("spell")) {
+        	String user = spellWord.getText();
+            String[] userCheck = currentWord.checkSpelling(user);
+            wordsSpelledByUser.setText("");
+            Style style = wordsSpelledByUser.addStyle("Black", null);
+            StyleConstants.setAlignment(style, StyleConstants.ALIGN_RIGHT);
+            //StyleConstants.setFontSize(style, 14);
+            StyleConstants.setSpaceAbove(style, 4);
+            StyleConstants.setSpaceBelow(style, 4);
+            StyleConstants.setForeground(style, Color.BLACK);
+            try {
+            	wordsSpelledByUser.getDocument().insertString(0, "Word Spelled By User: " + userCheck[0], style);
+            } catch (BadLocationException ex) {
+            	
+            }
+            //StyledDocument document = wordsSpelledByUser.getStyledDocument();
+            style = wordsSpelledByUser.addStyle("Red Underline", style);
+            StyleConstants.setForeground(style, Color.RED);
+            StyleConstants.setUnderline(style, true);
+            try {
+            	wordsSpelledByUser.getDocument().insertString(wordsSpelledByUser.getText().length(), userCheck[1], style);
+            } catch (BadLocationException ex) {
+            	
+            }
+            wordsSpelledByUser.removeStyle("Red Underline");
+            StyleConstants.setForeground(style, Color.BLACK);
+            StyleConstants.setUnderline(style, false);
+            try {
+            	wordsSpelledByUser.getDocument().insertString(wordsSpelledByUser.getText().length(), userCheck[2], style);
+            } catch (BadLocationException ex) {
+            	
+            }
             wordsSeen++;
             totalWordsSeen++;
             spellingWord.setVisible(false);
@@ -284,7 +327,16 @@ public class Game implements ActionListener {
         //}
         //when hear button is click make noise
         else if(eventName.equals("hear")) {
-        	
+        	SoundPlayback soundPlayer = new SoundPlayback();
+        	try {
+				soundPlayer.play("Recordings/" + currentWord.getWord() + ".wav");
+			} catch (UnsupportedAudioFileException e1) {
+				
+			} catch (LineUnavailableException e1) {
+				
+			} catch (IOException e1) {
+				
+			}
         }
         //screens
         else if(eventName.equals("checkSpelling")) {
@@ -312,6 +364,7 @@ public class Game implements ActionListener {
                 //when next button is click send to next word - change word noise
                 spellingWord.setVisible(true);
                 frame.setContentPane(spellingWord);
+                currentWord = levelMap.get(levelList.get(currentLevelIndex)).getRandWord();
                 frame.pack();
             }
         }
@@ -322,6 +375,7 @@ public class Game implements ActionListener {
             wordsCorrect = 0;
             spellingWord.setVisible(true);
             frame.setContentPane(spellingWord);
+            currentWord = levelMap.get(levelList.get(currentLevelIndex)).getRandWord();
             frame.pack();
         }
         else if(eventName.equals("up")) {
@@ -331,6 +385,7 @@ public class Game implements ActionListener {
             wordsCorrect = 0;
             spellingWord.setVisible(true);
             frame.setContentPane(spellingWord);
+            currentWord = levelMap.get(levelList.get(currentLevelIndex)).getRandWord();
             frame.pack();
         }
         else if(eventName.equals("max")) {
@@ -352,4 +407,5 @@ public class Game implements ActionListener {
             frame.pack();
         }
     }
+    
 }
