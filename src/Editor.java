@@ -44,6 +44,7 @@ public class Editor {
 		mainMenu.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		mainMenu.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
+		c.insets = new Insets(2, 2, 2, 2);
 		// level list
 		c.gridx = 0;
 		c.gridy = 0;
@@ -183,6 +184,7 @@ public class Editor {
 		editMenu.add(recordSentence, c);
 		recordSentence.addActionListener(new RecordSound());
 		recordSentence.setActionCommand("sentence");
+		// edit word dialog
 		editDialog.setContentPane(editMenu);
 		editDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 		editDialog.addWindowListener(new WindowListener() {
@@ -239,12 +241,13 @@ public class Editor {
 			catch (FileNotFoundException ex1) {
 				
 			}
+			// sort word lists
 			String[] levelWordArray = new String[levelWordList.size()];
 			for (int j = 0; j < levelWordList.size(); j++) {
 				levelWordArray[j] = levelWordList.get(j);
 			}
 			Arrays.sort(levelWordArray);
-			levelWordList = new DefaultListModel<>();
+			levelWordList.clear();
 			for (String spelling: levelWordArray) {
 				levelWordList.addElement(spelling);
 			}
@@ -446,21 +449,21 @@ public class Editor {
 	private class CloseEditMenu implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			File newSound = new File("Recordings/" + wordField.getText() + ".wav");
+			String newSpelling = wordField.getText().toLowerCase();
+			File newSound = new File("Recordings/" + newSpelling + ".wav");
 			File updatedSound = new File("temp_word.wav");
-			File newSentence = new File("Sentences/" + wordField.getText() + ".wav");
+			File newSentence = new File("Sentences/" + newSpelling + ".wav");
 			File updatedSentence = new File("temp_sentence.wav");
 			if (e.getActionCommand().equals("save")) {
 				// input validation
 				// check that word is there
-				String newSpelling = wordField.getText();
 				if (newSpelling.isEmpty()) {
 					statusLabel.setText("Word not provided");
 					return;
 				}
 				// check that word contains only letters
-				if (!newSpelling.matches("[A-Za-z]+")) {
-					statusLabel.setText("Word contains non-letter characters");
+				if (!newSpelling.matches("[a-z]+")) {
+					statusLabel.setText("Word should contain only letters");
 					return;
 				}
 				// check that word does not already exist
@@ -472,7 +475,8 @@ public class Editor {
 						outer:
 						for (Integer levelNum: wordList.keySet()) {
 							for (Object levelWord: wordList.get(levelNum).toArray()) {
-								if (levelWord.equals(newSpelling)) {
+								String levelString = (String) levelWord;
+								if (levelString.equals(newSpelling)) {
 									levelOfExistingWord = levelNum;
 									break outer;
 								}
@@ -525,18 +529,17 @@ public class Editor {
 					sentenceRenamed = updatedSentence.renameTo(newSentence);
 				}
 				// update word list
-				String newWord = wordField.getText();
 				Integer newLevel = Integer.parseInt(levelField.getText());
-				if (currentSpelling != null && (!currentSpelling.equals(newWord)
+				if (currentSpelling != null && (!currentSpelling.equals(newSpelling)
 						|| !currentLevel.equals(newLevel))) {
 					deleteWord(currentSpelling, currentLevel);
-					addWord(newWord, newLevel);
+					addWord(newSpelling, newLevel);
 				}
 				else if (currentSpelling == null) {
-					addWord(newWord, newLevel);
+					addWord(newSpelling, newLevel);
 				}
 				// delete or rename old sound files
-				if (currentSpelling != null && !currentSpelling.equals(newWord)) {
+				if (currentSpelling != null && !currentSpelling.equals(newSpelling)) {
 					File oldSound = new File("Recordings/" + currentSpelling + ".wav");
 					File oldSentence = new File("Sentences/" + currentSpelling + ".wav");
 					if (soundRenamed) {
@@ -658,6 +661,3 @@ public class Editor {
 	}
 
 }
-
-// FIXME lots and lots and lots of testing, make sure to create backup copies of files beforehand (it may already be too late)
-// Nothing has been tested yet because I'm scared about what may happen to the files
