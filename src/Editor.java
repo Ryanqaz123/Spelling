@@ -383,7 +383,7 @@ public class Editor {
 				oldSentence.delete();
 				loadWords();
 				levels.setModel(levelList);
-				words.setModel(new DefaultListModel<>());
+				words.setModel(new DefaultListModel<String>());
 			}
 			// cancel remove
 			else if (e.getActionCommand().equals("cancel")) {
@@ -555,7 +555,7 @@ public class Editor {
 				}
 				loadWords();
 				levels.setModel(levelList);
-				words.setModel(new DefaultListModel<>());
+				words.setModel(new DefaultListModel<String>());
 			}
 			else {
 				// delete temp files upon cancel
@@ -575,6 +575,7 @@ public class Editor {
 	private class PreviewSound implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			statusLabel.setText(" ");
 			SoundPlayback player = new SoundPlayback();
 			// find and play sound file
 			File soundFile;
@@ -617,6 +618,7 @@ public class Editor {
 	private class RecordSound implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			statusLabel.setText(" ");
 			SoundCapture recorder;
 			// create temporary sound file
 			if (e.getActionCommand().equals("spelling")) {

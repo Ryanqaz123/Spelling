@@ -86,7 +86,7 @@ public class SoundCapture {
     /**
      * Entry to run the program
      */
-    public void startCapture(long recordTime) throws LineUnavailableException, IOException{
+    public void startCapture(final long recordTime) throws LineUnavailableException, IOException{
         // creates a new thread that waits for a specified
         // of time before stopping
         Thread stopper = new Thread(new Runnable() {
