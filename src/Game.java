@@ -4,12 +4,21 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
  
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.BorderFactory;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Scanner;
+import java.io.File;
+import java.io.FileNotFoundException;
  
 public class Game implements ActionListener {
     private JFrame frame;
@@ -19,13 +28,32 @@ public class Game implements ActionListener {
     private JButton start, hearAudio, enterWord, Continue, continueSameLvl, lowerLvl, chooseLvlBack, lvlDownContinue, newP, returningP, resume, yes, no, nextWord, quit;
     String[] levelStrings = {"Level 1","Level 2","Level 3","Level 4", "Level 5"};
     private JComboBox<String> levels;
+    private HashMap<Integer, Level> levelMap;
+    private ArrayList<Integer> levelList;
     private int wordsCorrect = 0, totalWordsSeen = 0, totalWordsCorrect = 0, wordsSeen = 0;
+    private SoundPlayback soundPlayer = new SoundPlayback();
     //User user;
     // private int PL = user.getLevel();
  
     public Game() {
+    	// Load Words
+    	levelMap = new HashMap<>();
+    	File wordFolder = new File("Words");
+    	File[] levelFiles = wordFolder.listFiles();
+    	for (int i = 0; i < levelFiles.length; i++) {
+			// load level
+			File levelFile = levelFiles[i];
+			String fileName = levelFile.getName();
+			int levelNum = Integer.parseInt(fileName.substring(0, fileName.indexOf(".")));
+			levelList.add(Integer.valueOf(levelNum));
+			levelMap.put(levelNum, new Level(levelNum));
+		}
+    	Collections.sort(levelList);
+    	
+    	// GUI Components
         frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.getRootPane().setBorder(BorderFactory.createMatteBorder(5, 5, 5, 5, Color.PINK));
         menu  = new JPanel();
         menu.setBackground(Color.PINK);
         menu2 = new JPanel();
@@ -205,54 +233,61 @@ public class Game implements ActionListener {
             menu.add(quit);
             menu2.setVisible(true);
             frame.setContentPane(menu2);
+            frame.pack();
         }
-        if(eventName.equals("return")) {
+        else if(eventName.equals("return")) {
             menu.setVisible(false);
             menu3.add(quit);
             menu3.setVisible(true);
             frame.setContentPane(menu3);
+            frame.pack();
         }
-        if(eventName.equals("Menu2")) {
+        else if(eventName.equals("Menu2")) {
             menu.setVisible(false);
             menu3.setVisible(false);
             spellingWord.add(quit);
             spellingWord.setVisible(true);
             frame.setContentPane(spellingWord);
+            frame.pack();
         } 
-        if(eventName.equals("check")) {
+        else if(eventName.equals("check")) {
             String checkString = name.getText();
             menu2.setVisible(false);
             checkL.setText("Is this correct?" + checkString);
             check.setVisible(true);
             check.add(quit);
             frame.setContentPane(check);
+            frame.pack();
         }
-        if(eventName.equals("yes")) {
+        else if(eventName.equals("yes")) {
             check.setVisible(false);
             spellingWord.setVisible(true);
             frame.setContentPane(spellingWord);
+            frame.pack();
         }
-        if(eventName.equals("no")) {
+        else if(eventName.equals("no")) {
             check.setVisible(false);
             menu2.setVisible(true);
             menu2.add(quit);
             frame.setContentPane(menu2);
+            frame.pack();
         }
-        if(eventName.equals("spell")) {
+        else if(eventName.equals("spell")) {
             wordsSeen++;
             totalWordsSeen++;
             spellingWord.setVisible(false);
             checkSpelling.setVisible(true);
             checkSpelling.add(quit);
             frame.setContentPane(checkSpelling);
+            frame.pack();
         }
         //}
         //when hear button is click make noise
-        if(eventName.equals("hear")) {
+        else if(eventName.equals("hear")) {
         	
         }
         //screens
-        if(eventName.equals("checkSpelling")) {
+        else if(eventName.equals("checkSpelling")) {
             //if((wordsSeen == 10 && wordsCorrect < 7) && PL != 1) {
                 //checkSpelling.setVisible(false);
                 //PL--;
@@ -265,6 +300,7 @@ public class Game implements ActionListener {
                 levelUp.setVisible(true);
                 //PL++;
                 frame.setContentPane(levelUp);
+                frame.pack();
                 
             //}else if(wordsSeen == 10 && wordsCorrect == 10 && (level.equals("Level 5") || user.getLevel() == 5)) {
                 //checkSpelling.setVisible(false);
@@ -276,28 +312,31 @@ public class Game implements ActionListener {
                 //when next button is click send to next word - change word noise
                 spellingWord.setVisible(true);
                 frame.setContentPane(spellingWord);
+                frame.pack();
             }
         }
-        if(eventName.equals("down")) {
+        else if(eventName.equals("down")) {
             levelDown.setVisible(false);
             //implement way to make words less difficult
             wordsSeen = 0;
             wordsCorrect = 0;
             spellingWord.setVisible(true);
             frame.setContentPane(spellingWord);
+            frame.pack();
         }
-        if(eventName.equals("up")) {
+        else if(eventName.equals("up")) {
             levelUp.setVisible(false);
             //implement way to make words more difficult 
             wordsSeen = 0;
             wordsCorrect = 0;
             spellingWord.setVisible(true);
             frame.setContentPane(spellingWord);
+            frame.pack();
         }
-        if(eventName.equals("max")) {
+        else if(eventName.equals("max")) {
             
         }
-        if(eventName.equals("quit")) {
+        else if(eventName.equals("quit")) {
             menu.setVisible(true);
             menu2.setVisible(false);
             menu3.setVisible(false);
@@ -310,6 +349,7 @@ public class Game implements ActionListener {
             levelDown.setVisible(false);
             changeWords.setVisible(false);
             frame.setContentPane(menu);
+            frame.pack();
         }
     }
 }
