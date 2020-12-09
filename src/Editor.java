@@ -26,7 +26,7 @@ public class Editor {
 	private HashMap<Integer, DefaultListModel<String>> wordList = new HashMap<>();
 	// edit word menu components
 	private JLabel wordLabel = new JLabel("Spelling"), soundLabel = new JLabel("Pronunciation"),
-			recordLengthLabel = new JLabel("Recording time (3 to 15 sec.)"),
+			recordLengthLabel = new JLabel("Recording time (2 to 15 sec.)"),
 			sentenceLabel = new JLabel("Sentence"), levelLabel = new JLabel("Level"), statusLabel = new JLabel(" ");
 	private JTextField wordField = new JTextField(10), levelField = new JTextField(5), recordLengthField = new JTextField(5);
 	private JButton previewSound = new JButton("Preview"), recordSound = new JButton("Record"),
@@ -641,7 +641,7 @@ public class Editor {
 			// try to capture sound
 			try {
 				long recordTime = (long)(Double.parseDouble(recordLengthField.getText()) * 1000);
-				if (recordTime > 15000 || recordTime < 3000) {
+				if (recordTime > 15000 || recordTime < 2000) {
 					throw new NumberFormatException();
 				}
 				recorder.startCapture(recordTime);

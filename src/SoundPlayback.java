@@ -31,7 +31,7 @@ public class SoundPlayback implements LineListener{
             while (!playCompleted) {
                 // wait for the playback completes
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(500);
                 } catch (InterruptedException ex) {
                     //ex.printStackTrace();
                 }

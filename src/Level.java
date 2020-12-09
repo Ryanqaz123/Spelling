@@ -17,7 +17,9 @@ public class Level {
 		try (Scanner levelScanner = new Scanner(file)) {
 			while (levelScanner.hasNextLine()) {
 				 String spelling = levelScanner.nextLine();
-				 words.add(new Word(spelling));
+				 Word newWord = new Word(spelling);
+				 words.add(newWord);
+				 newWords.add(newWord);
 			}
 		}
 		catch (FileNotFoundException ex1) {
@@ -76,7 +78,14 @@ public class Level {
     }
     
     public Word getRandNewWord() {
-    	return newWords.get((int)(Math.random() * words.size()));
+    	return newWords.get((int)(Math.random() * newWords.size()));
+    }
+    
+    public Word getAWord() {
+    	if (newWords.size() == 0) {
+    		return getRandWord();
+    	}
+    	return getRandNewWord();
     }
     
     /*

@@ -38,9 +38,8 @@ public class Word {
             }
             i--;
         }
-        for (int x = 0; x < (spelling.length() - front.length() - end.length()); x++) {//creates a spacer
-            spacer = spacer + spelling.charAt(front.length() + x);
-        }
+        
+        spacer = spelling.substring(front.length(), Math.max(front.length(), spelling.length() - end.length()));
         if (spacer.isEmpty() && wordIdent.length() != front.length() + end.length()) {//indicate whether letters are missing
             spacer = "*";
         }
@@ -57,8 +56,11 @@ public class Word {
     }
     
     public String incorrect() {
-        String incorrect = wordParts[0] + wordParts[1] + wordParts[2];
-        return incorrect;
+        return wordParts[1];
+    }
+    
+    public boolean isCorrect(String spelling) {
+    	return wordIdent.equals(spelling);
     }
     
     @Override

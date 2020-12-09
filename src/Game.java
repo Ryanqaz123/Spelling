@@ -12,7 +12,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
-import javax.swing.text.Highlighter;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.BorderFactory;
@@ -40,8 +39,8 @@ public class Game implements ActionListener {
     private int wordsCorrect = 0, totalWordsSeen = 0, totalWordsCorrect = 0, wordsSeen = 0;
     private int currentLevelIndex = 0;
     private Word currentWord;
-    //User user;
-    // private int PL = user.getLevel();
+    private User user;
+    private int PL;
  
     public Game() {
     	// Load Words
@@ -60,7 +59,7 @@ public class Game implements ActionListener {
     	
     	// GUI Components
         frame = new JFrame();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // TODO update level when closing with close button
         frame.getRootPane().setBorder(BorderFactory.createMatteBorder(5, 5, 5, 5, Color.PINK));
         menu  = new JPanel();
         menu.setBackground(Color.PINK);
@@ -164,6 +163,7 @@ public class Game implements ActionListener {
         Continue = new JButton("Continue");
         levelUp.add(Continue);
         Continue.addActionListener(this);
+        Continue.setActionCommand("up");
         continueSameLvl = new JButton("Continue On This Level"); 
         levelUpMax.add(continueSameLvl);
         continueSameLvl.addActionListener(this);
@@ -229,7 +229,8 @@ public class Game implements ActionListener {
         frame.setVisible(true);
     }
     private static void runGUI() {
-        Game a1 = new Game();
+        @SuppressWarnings("unused")
+		Game a1 = new Game();
     }
     public static void main(String[] args) {
         runGUI();
@@ -252,12 +253,14 @@ public class Game implements ActionListener {
             frame.pack();
         }
         else if(eventName.equals("Menu2")) {
+        	user = new User(returnUser.getText());
+        	PL = user.getLevel();
             menu.setVisible(false);
             menu3.setVisible(false);
             spellingWord.add(quit);
             spellingWord.setVisible(true);
             frame.setContentPane(spellingWord);
-            currentWord = levelMap.get(levelList.get(currentLevelIndex)).getRandWord();
+            setCurrentWord();
             frame.pack();
         } 
         else if(eventName.equals("check")) {
@@ -271,10 +274,12 @@ public class Game implements ActionListener {
             frame.pack();
         }
         else if(eventName.equals("yes")) {
+        	user = new User(Integer.parseInt(age.getText()), name.getText(), levelList.get(currentLevelIndex));
+        	PL = user.getLevel();
             check.setVisible(false);
             spellingWord.setVisible(true);
             frame.setContentPane(spellingWord);
-            currentWord = levelMap.get(levelList.get(currentLevelIndex)).getRandWord();
+            setCurrentWord();
             frame.pack();
         }
         else if(eventName.equals("no")) {
@@ -318,6 +323,11 @@ public class Game implements ActionListener {
             }
             wordsSeen++;
             totalWordsSeen++;
+            if (currentWord.isCorrect(user)) {
+            	wordsCorrect++;
+            	totalWordsCorrect++;
+            	levelMap.get(Integer.valueOf(PL)).wordSpelled(currentWord);
+            }
             spellingWord.setVisible(false);
             checkSpelling.setVisible(true);
             checkSpelling.add(quit);
@@ -340,31 +350,33 @@ public class Game implements ActionListener {
         }
         //screens
         else if(eventName.equals("checkSpelling")) {
-            //if((wordsSeen == 10 && wordsCorrect < 7) && PL != 1) {
-                //checkSpelling.setVisible(false);
-                //PL--;
-                //levelDown.setVisible(true);
-                //levelDown.add(quit);
-                //frame.setContentPane(levelDown);
-            //}else 
-                if(wordsSeen == 10 && wordsCorrect == 10) {
+            if((wordsSeen == 10 && wordsCorrect < 7) && PL != 1) {
                 checkSpelling.setVisible(false);
-                levelUp.setVisible(true);
-                //PL++;
-                frame.setContentPane(levelUp);
+                PL--;
+                user.setLevel(PL);
+                levelDown.setVisible(true);
+                levelDown.add(quit);
+                frame.setContentPane(levelDown);
+            }else if(wordsSeen == 10 && wordsCorrect >= 7 && (currentLevelIndex + 1 == levelList.size())) {
+                checkSpelling.setVisible(false);
+                levelUpMax.setVisible(true);
+                levelUpMax.add(quit);
+                frame.setContentPane(levelUpMax);
                 frame.pack();
                 
-            //}else if(wordsSeen == 10 && wordsCorrect == 10 && (level.equals("Level 5") || user.getLevel() == 5)) {
-                //checkSpelling.setVisible(false);
-                //levelUpMax.setVisible(true);
-                //levelUpMax.add(quit);
-                //frame.setContentPane(levelUpMax);
+            }else if(wordsSeen == 10 && wordsCorrect >= 7) {
+                checkSpelling.setVisible(false);
+                levelUp.setVisible(true);
+                PL++;
+                user.setLevel(PL);
+                frame.setContentPane(levelUp);
+                frame.pack();
             }else {
                 checkSpelling.setVisible(false);
                 //when next button is click send to next word - change word noise
                 spellingWord.setVisible(true);
                 frame.setContentPane(spellingWord);
-                currentWord = levelMap.get(levelList.get(currentLevelIndex)).getRandWord();
+                setCurrentWord();
                 frame.pack();
             }
         }
@@ -375,7 +387,7 @@ public class Game implements ActionListener {
             wordsCorrect = 0;
             spellingWord.setVisible(true);
             frame.setContentPane(spellingWord);
-            currentWord = levelMap.get(levelList.get(currentLevelIndex)).getRandWord();
+            setCurrentWord();
             frame.pack();
         }
         else if(eventName.equals("up")) {
@@ -385,13 +397,17 @@ public class Game implements ActionListener {
             wordsCorrect = 0;
             spellingWord.setVisible(true);
             frame.setContentPane(spellingWord);
-            currentWord = levelMap.get(levelList.get(currentLevelIndex)).getRandWord();
+            setCurrentWord();
             frame.pack();
         }
         else if(eventName.equals("max")) {
-            
+            // TODO stay at level
+        }
+        else if (eventName.equals("downMax")) {
+        	// TODO go down level
         }
         else if(eventName.equals("quit")) {
+        	user.writeLevel();
             menu.setVisible(true);
             menu2.setVisible(false);
             menu3.setVisible(false);
@@ -406,6 +422,11 @@ public class Game implements ActionListener {
             frame.setContentPane(menu);
             frame.pack();
         }
+    }
+    
+    public void setCurrentWord() {
+    	currentLevelIndex = PL - 1;
+    	currentWord = levelMap.get(levelList.get(currentLevelIndex)).getAWord();
     }
     
 }

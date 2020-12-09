@@ -1,4 +1,3 @@
-import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -7,6 +6,7 @@ import java.io.*;
 import java.util.Scanner;
 
 public class User {
+	private static String userFileName = "users.txt";
     private String userName = "";
     private int userLevel = 0;
     //private int userAge = 0;
@@ -21,8 +21,8 @@ public class User {
             System.out.println("Couldn't read file " + name+".txt");
             e.printStackTrace();
         }*/
-    	
-    	try (Scanner sc = new Scanner("users.txt")){
+    	File userFile = new File(userFileName);
+    	try (Scanner sc = new Scanner(userFile)){
     		while (sc.hasNextLine()) {
     			String nextLine = sc.nextLine();
     			if (nextLine.equals(name)) {
@@ -33,16 +33,17 @@ public class User {
     				sc.nextLine();
     			}
     		}
-    	}
-    	createTempUser();
+    	} catch (FileNotFoundException e) {
+    		
+		}
     }
 
     public User(int age, String name, int level) {
-        //File file = new File("users.txt");
+        File userFile = new File(userFileName);
         userName = name;
         userLevel = level;
         //userAge = age;
-        try (FileWriter fw = new FileWriter("users.txt", true);
+        try (FileWriter fw = new FileWriter(userFile, true);
         		BufferedWriter bw = new BufferedWriter(fw);) {
         	bw.write(name);
         	bw.newLine();
@@ -52,13 +53,57 @@ public class User {
         catch (IOException ex) {
         	
         }
-        createTempUser();
     }
     
-    private void createTempUser() {
-    	File tempUser = new File("temp_" + userName + ".txt");
+    public void setLevel(int level) {
+    	userLevel = level;
     	
     }
+    
+    public void writeLevel() {
+    	File userFile = new File(userFileName);
+    	File tempUserFile;
+    	try {
+			tempUserFile = File.createTempFile("temp_users", ".txt");
+		} catch (IOException e) {
+			tempUserFile = null;
+		}
+    	try (Scanner sc = new Scanner(userFile);
+    			PrintWriter pwt = new PrintWriter(tempUserFile);) {
+    		while (sc.hasNextLine()) {
+    			String nextLine = sc.nextLine();
+    			pwt.println(nextLine);
+    			if (sc.hasNextLine()) {
+    				if (nextLine.equals(userName)) {
+    					sc.nextLine();
+    					pwt.println(Integer.toString(userLevel));
+    				}
+    				else {
+    					pwt.println(sc.nextLine());
+    				}
+    			}
+    			
+    		}
+    	} catch (FileNotFoundException e) {
+    		
+		}
+    	try (Scanner sct = new Scanner(tempUserFile);
+    			PrintWriter pw = new PrintWriter(userFile);) {
+    		while (sct.hasNextLine()) {
+    			pw.print(sct.nextLine());
+    			if (sct.hasNextLine()) {
+    				pw.println();
+    			}
+    		}
+    		
+    	} catch (FileNotFoundException e) {
+    		
+		}
+    	if (tempUserFile != null) {
+    		tempUserFile.deleteOnExit();
+    	}
+    }
+ 
 
     public String getName() {
         return userName;
@@ -69,7 +114,7 @@ public class User {
     }
     
     public static boolean userExists(String name) {
-    	try (Scanner sc = new Scanner("users.txt")){
+    	try (Scanner sc = new Scanner(userFileName)){
     		while (sc.hasNextLine()) {
     			String nextLine = sc.nextLine();
     			if (nextLine.equals(name)) {
