@@ -136,7 +136,8 @@ public class Editor {
 		editMenu.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		editMenu.setLayout(new GridBagLayout());
 		// labels
-		c.gridx = 0; c.gridy = 0;
+		c.gridx = 0;
+		c.gridy = 0;
 		editMenu.add(wordLabel, c);
 		c.gridy++;
 		editMenu.add(soundLabel, c);
@@ -150,7 +151,8 @@ public class Editor {
 		c.gridwidth = 3;
 		editMenu.add(statusLabel, c);
 		// save and cancel buttons
-		c.gridy--; c.gridx++;
+		c.gridy--;
+		c.gridx++;
 		c.gridwidth = 1;
 		editMenu.add(saveButton, c);
 		saveButton.addActionListener(new CloseEditMenu());
@@ -160,7 +162,8 @@ public class Editor {
 		cancelButton.addActionListener(new CloseEditMenu());
 		cancelButton.setActionCommand("cancel");
 		// text fields
-		c.gridx = 1; c.gridy = 0;
+		c.gridx = 1;
+		c.gridy = 0;
 		c.gridwidth = 2;
 		editMenu.add(wordField, c);
 		c.gridy = 3;
@@ -177,7 +180,8 @@ public class Editor {
 		editMenu.add(recordSound, c);
 		recordSound.addActionListener(new RecordSound());
 		recordSound.setActionCommand("spelling");
-		c.gridx = 1; c.gridy = 2;
+		c.gridx = 1;
+		c.gridy = 2;
 		editMenu.add(previewSentence, c);
 		previewSentence.addActionListener(new PreviewSound());
 		previewSentence.setActionCommand("sentence");
@@ -428,6 +432,8 @@ public class Editor {
 				currentLevel = levels.getSelectedValue();
 				wordField.setText(currentSpelling);
 				levelField.setText(currentLevel.toString());
+				previewSound.setEnabled(true);
+				previewSentence.setEnabled(true);
 				editDialog.setTitle("Edit " + currentSpelling);
 			}
 			else {

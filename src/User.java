@@ -1,7 +1,7 @@
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
+//import java.nio.charset.Charset;
+//import java.nio.file.Files;
+//import java.nio.file.Paths;
+//import java.util.List;
 import java.io.*;
 import java.util.Scanner;
 
@@ -45,10 +45,10 @@ public class User {
         //userAge = age;
         try (FileWriter fw = new FileWriter(userFile, true);
         		BufferedWriter bw = new BufferedWriter(fw);) {
+        	bw.newLine();
         	bw.write(name);
         	bw.newLine();
         	bw.write(Integer.toString(level));
-        	bw.newLine();
         }
         catch (IOException ex) {
         	
@@ -89,9 +89,11 @@ public class User {
 		}
     	try (Scanner sct = new Scanner(tempUserFile);
     			PrintWriter pw = new PrintWriter(userFile);) {
-    		while (sct.hasNextLine()) {
+    		boolean hasNextLine = sct.hasNextLine();
+    		while (hasNextLine) {
     			pw.print(sct.nextLine());
-    			if (sct.hasNextLine()) {
+    			hasNextLine = sct.hasNextLine();
+    			if (hasNextLine) {
     				pw.println();
     			}
     		}
