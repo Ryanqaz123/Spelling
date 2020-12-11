@@ -11,6 +11,10 @@ public class User {
     private int userLevel = 0;
     //private int userAge = 0;
 
+    /**
+     * Find the user associated with the given name and load that user's information
+     * @param name
+     */
     public User(String name) {//Loads a user's file based on name
     	/*
         List<String> result = null;
@@ -37,7 +41,25 @@ public class User {
     		
 		}
     }
+    
+    /**
+     * Only intended for use after running User.userLevel(name) and receiving a positive integer<br>
+     * Initialize an existing user with the given information<br>
+     * <b>Warning: does not check that the user exists, does not read or write from users file</b>
+     * @param name
+     * @param level
+     */
+    public User(String name, int level) {
+    	userName = name;
+    	userLevel = level;
+    }
 
+    /**
+     * Initialize a user with the given information and append the user to the users file
+     * @param age
+     * @param name
+     * @param level
+     */
     public User(int age, String name, int level) {
         File userFile = new File(userFileName);
         userName = name;
@@ -55,11 +77,17 @@ public class User {
         }
     }
     
+    /**
+     * Set the user's level
+     * @param level
+     */
     public void setLevel(int level) {
     	userLevel = level;
-    	
     }
     
+    /**
+     * write the user in the temp user file to the main file
+     */
     public void writeLevel() {
     	File userFile = new File(userFileName);
     	File tempUserFile;
@@ -106,28 +134,51 @@ public class User {
     	}
     }
  
-
+    /**
+     * @return the user's name
+     */
     public String getName() {
         return userName;
     }
 
+    /**
+     * @return the user's level
+     */
     public int getLevel() {
         return userLevel;
     }
     
-    public static boolean userExists(String name) {
+    /**
+     * Go through the users file and look for the given name
+     * If the name exists, return the user's level
+     * If the name exists, but the level cannot be found, return 0
+     * If the user cannot be found, return -1
+     * @param name
+     * @return
+     */
+    public static int userLevel(String name) {
     	try (Scanner sc = new Scanner(userFileName)){
     		while (sc.hasNextLine()) {
     			String nextLine = sc.nextLine();
     			if (nextLine.equals(name)) {
-    				return true;
+    				if (sc.hasNextLine()) {
+    					int userLevel;
+    					try {
+    						userLevel = Integer.parseInt(sc.nextLine());
+    					}
+    					catch (NumberFormatException ex) {
+    						userLevel = 0;
+    					}
+    					return userLevel;
+    				}
+    				return 0;
     			}
     			else if (sc.hasNextLine()) {
     				 sc.nextLine();
     			}
     		}
     	}
-    	return false;
+    	return -1;
     }
 
     /*

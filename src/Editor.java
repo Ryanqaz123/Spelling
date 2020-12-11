@@ -680,3 +680,6 @@ public class Editor {
 	}
 
 }
+
+// TODO make recording time a slider or buttons
+// TODO figure out how to select levels

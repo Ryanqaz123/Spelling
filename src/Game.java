@@ -207,6 +207,10 @@ public class Game implements ActionListener {
         wordsSpelledByUser.setFont(new Font("Comic Sans MS", Font.PLAIN, 24));
         wordsSpelledByUser.setBackground(Color.WHITE);
         wordsSpelledByUser.setOpaque(true);
+        wordsSpelledByUser.setEditable(false);
+        wordsSpelledByUser.setSelectedTextColor(null);
+        wordsSpelledByUser.setSelectionColor(Color.WHITE);
+        wordsSpelledByUser.setAlignmentX(0f);
         checkSpelling.add(wordsSpelledByUser);
         wordsSpelledCorrectly = new JLabel("Word Spelled Correctly: ");
         wordsSpelledCorrectly.setFont(new Font("Comic Sans MS", Font.PLAIN, 24));
@@ -291,6 +295,7 @@ public class Game implements ActionListener {
             spellingWord.setVisible(true);
             level.setText("Level: " + Integer.toString(playerLevel()));
             frame.setContentPane(spellingWord);
+            // TODO reset new words in level
             setCurrentWord();
             frame.pack();
         } 
@@ -317,6 +322,7 @@ public class Game implements ActionListener {
             spellingWord.setVisible(true);
             level.setText("Level: " + Integer.toString(playerLevel()));
             frame.setContentPane(spellingWord);
+            // TODO reset new words in level
             setCurrentWord();
             frame.pack();
         }
@@ -367,7 +373,7 @@ public class Game implements ActionListener {
             if (currentWord.isCorrect(user)) {
             	wordsCorrect++;
             	totalWordsCorrect++;
-            	levelMap.get(Integer.valueOf(playerLevel())).wordSpelled(currentWord);
+            	levelMap.get(Integer.valueOf(playerLevel())).addToSpelled(currentWord);
             }
             spellingWord.setVisible(false);
             checkSpelling.setVisible(true);
@@ -393,30 +399,30 @@ public class Game implements ActionListener {
         // review spelling: next word
         else if(eventName.equals("checkSpelling")) {
         	// TODO add words spelled correctly in a row, total percentage correct
-            if((wordsSeen == 10 && wordsCorrect < 7) && currentLevelIndex != 0) {
+            if((wordsSeen == 10 && wordsCorrect < 7) && currentLevelIndex != 0) { // level down
                 checkSpelling.setVisible(false);
                 levelDown.setVisible(true);
                 levelDown.add(quit);
                 frame.setContentPane(levelDown);
-            }else if(wordsSeen == 10 && wordsCorrect >= 7 && (currentLevelIndex + 1 == levelList.size())) {
+            }else if(wordsSeen == 10 && wordsCorrect >= 7 && (currentLevelIndex + 1 == levelList.size())) { // max level up
                 checkSpelling.setVisible(false);
                 levelUpMax.setVisible(true);
                 levelUpMax.add(quit);
                 frame.setContentPane(levelUpMax);
                 frame.pack();
                 
-            }else if(wordsSeen == 10 && wordsCorrect >= 7) {
+            }else if(wordsSeen == 10 && wordsCorrect >= 7) { // level up
                 checkSpelling.setVisible(false);
                 levelUp.setVisible(true);
                 frame.setContentPane(levelUp);
                 frame.pack();
-            }else {
+            }else { // no level change
             	// TODO show correct spelling after user spells word right or gives up
             	// TODO allow user to try again or give up after spelling word wrong
                 checkSpelling.setVisible(false);
-                //when next button is click send to next word - change word noise
                 spellingWord.setVisible(true);
                 frame.setContentPane(spellingWord);
+                //when next button is click send to next word - change word noise
                 setCurrentWord();
                 frame.pack();
             }
@@ -472,28 +478,45 @@ public class Game implements ActionListener {
         // TODO level selector?
     }
     
+    /**
+     * Get a word from the player's current level
+     */
     public void setCurrentWord() {
     	currentWord = levelMap.get(playerLevel()).getAWord();
     }
     
+    /**
+     * Set the level to the next level (increment the level index)
+     */
     public void incrementLevel() {
     	currentLevelIndex++;
     	user.setLevel(playerLevel());
     	level.setText("Level: " + Integer.toString(playerLevel()));
     }
     
+    /**
+     * Set the level to the previous level (decrement the level index)
+     */
     public void decrementLevel() {
     	currentLevelIndex--;
     	user.setLevel(playerLevel());
     	level.setText("Level: " + Integer.toString(playerLevel()));
     }
     
+    /**
+     * Set the level to the level associated with the given index
+     * @param index
+     */
     public void setLevelWithIndex(int index) {
     	currentLevelIndex = index;
     	user.setLevel(playerLevel());
     	level.setText("Level: " + Integer.toString(playerLevel()));
     }
     
+    /**
+     * Return the level associated the current level index
+     * @return
+     */
     public int playerLevel() {
     	return levelList.get(currentLevelIndex).intValue();
     }

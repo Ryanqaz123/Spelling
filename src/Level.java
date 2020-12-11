@@ -11,6 +11,11 @@ public class Level {
     //private FileWriter fw;
     //private PrintWriter pw;
     
+    /**
+     * Create a new Level whose level number is the given level
+     * Loads all the words into a word list, also into a new word list
+     * @param level
+     */
     public Level(int level) {
         this.level = level;
         File file = new File("Words/" + Integer.toString(level) + ".txt");
@@ -65,27 +70,53 @@ public class Level {
         return words;
     }
     
+    /**
+     * 
+     * @return
+     */
     public ArrayList<Word> getNewWords() {
     	return newWords;
     }
     
-    public void wordSpelled(Word word) {
+    /**
+     * Remove the given word from the new words list
+     */
+    public void addToSpelled(Word word) {
     	newWords.remove(word);
     }
-    
+
+    /**
+     * Get a random word from the word list
+     * @return
+     */
     public Word getRandWord() {
     	return words.get((int)(Math.random() * words.size()));
     }
-    
+
+    /**
+     * Get a random word from the new words list
+     * @return
+     */
     public Word getRandNewWord() {
     	return newWords.get((int)(Math.random() * newWords.size()));
     }
-    
+
+    /**
+     * Get a random new word if there is one, otherwise get a random word
+     * @return
+     */
     public Word getAWord() {
     	if (newWords.size() == 0) {
     		return getRandWord();
     	}
     	return getRandNewWord();
+    }
+
+    /**
+     * Put all words in the words list back into the new words list
+     */
+    public void restoreNewWords() {
+    	newWords = new ArrayList<>(words);
     }
     
     /*
