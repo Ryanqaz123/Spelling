@@ -28,7 +28,8 @@ public class Editor {
 	private JLabel wordLabel = new JLabel("Spelling"), soundLabel = new JLabel("Pronunciation"),
 			recordLengthLabel = new JLabel("Recording time (2 to 15 sec.)"),
 			sentenceLabel = new JLabel("Sentence"), levelLabel = new JLabel("Level"), statusLabel = new JLabel(" ");
-	private JTextField wordField = new JTextField(10), levelField = new JTextField(5), recordLengthField = new JTextField(5);
+	private JSpinner recordLengthSpinner;
+	private JTextField wordField = new JTextField(10), levelField = new JTextField(5);
 	private JButton previewSound = new JButton("Preview"), recordSound = new JButton("Record"),
 			previewSentence= new JButton("Preview"), recordSentence = new JButton("Record"),
 			saveButton = new JButton("Save"), cancelButton = new JButton("Cancel");
@@ -166,11 +167,17 @@ public class Editor {
 		c.gridy = 0;
 		c.gridwidth = 2;
 		editMenu.add(wordField, c);
-		c.gridy = 3;
-		c.gridwidth = 1;
-		editMenu.add(recordLengthField, c);
 		c.gridy = 4;
+		c.gridwidth = 1;
 		editMenu.add(levelField, c);
+		// recording time spinner
+		c.gridy = 3;
+		SpinnerModel recordLengthModel = new SpinnerNumberModel(2.0, 2.0, 15.0, 1.0);
+		recordLengthSpinner = new JSpinner(recordLengthModel);
+		JComponent spinnerEditor = recordLengthSpinner.getEditor();
+		JFormattedTextField jftf = ((JSpinner.DefaultEditor) spinnerEditor).getTextField();
+		jftf.setColumns(5);
+		editMenu.add(recordLengthSpinner, c);
 		// preview and record sound buttons
 		c.gridy = 1;
 		editMenu.add(previewSound, c);
@@ -445,7 +452,6 @@ public class Editor {
 				currentSpelling = null;
 				editDialog.setTitle("Add Word");
 			}
-			recordLengthField.setText("3.0");
 			statusLabel.setText(" ");
 			// change to edit menu
 			editDialog.pack();
@@ -646,10 +652,7 @@ public class Editor {
 			}
 			// try to capture sound
 			try {
-				long recordTime = (long)(Double.parseDouble(recordLengthField.getText()) * 1000);
-				if (recordTime > 15000 || recordTime < 2000) {
-					throw new NumberFormatException();
-				}
+				long recordTime = (long)(((Double)recordLengthSpinner.getValue()).doubleValue() * 1000);
 				recorder.startCapture(recordTime);
 				if (e.getActionCommand().equals("spelling")) {
 					previewSound.setEnabled(true);
@@ -681,5 +684,4 @@ public class Editor {
 
 }
 
-// TODO make recording time a slider or buttons
 // TODO figure out how to select levels

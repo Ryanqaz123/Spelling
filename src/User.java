@@ -49,7 +49,7 @@ public class User {
      * @param name
      * @param level
      */
-    public User(String name, int level) {
+    private User(String name, int level) {
     	userName = name;
     	userLevel = level;
     }
@@ -156,8 +156,9 @@ public class User {
      * @param name
      * @return
      */
-    public static int userLevel(String name) {
-    	try (Scanner sc = new Scanner(userFileName)){
+    public static int levelOf(String name) {
+    	File userFile = new File(userFileName);
+    	try (Scanner sc = new Scanner(userFile)){
     		while (sc.hasNextLine()) {
     			String nextLine = sc.nextLine();
     			if (nextLine.equals(name)) {
@@ -178,7 +179,25 @@ public class User {
     			}
     		}
     	}
+    	catch (FileNotFoundException ex) {
+    		return -1;
+    	}
     	return -1;
+    }
+    
+    /**
+     * returns a User object corresponding to the given name, with the level of that user
+     * returns null if there is no current User with that name, or cannot read from file
+     * getLevel() of the user is 0 if the level cannot be found
+     * @param name
+     * @return
+     */
+    public static User load(String name) {
+    	int level = levelOf(name);
+    	if (level == -1) {
+    		return null;
+    	}
+    	return new User(name, level);
     }
 
     /*
