@@ -1,16 +1,33 @@
+/**
+ * Represents a single word, handles checking of spelling
+ */
 public class Word {
 
     private String wordIdent;
     private String[] wordParts;
-
+    
+    /**
+     * Constructs a word with the given spelling.  The spelling is converted to lower case.
+     * @param word
+     */
     public Word(String word){
         wordIdent = word.toLowerCase();
     }
-
+    
+    /**
+     * @return the word's spelling
+     */
     public String getWord() {
         return wordIdent;
     }
-
+    
+    /**
+     * Checks the spelling of the given spelling against the spelling of the word
+     * @param spelling
+     * @return [first section before the first letter out of place, 
+     * middle section between first and last letters out of place, 
+     * last section starting after last letter out of place]
+     */
     public String[] checkSpelling(String spelling) {
         String front = "";
         String end = "";
@@ -59,10 +76,17 @@ public class Word {
         return wordParts[1];
     }
     
+    /**
+     * @return whether the given spelling is equal to the word's spelling
+     * @param spelling
+     */
     public boolean isCorrect(String spelling) {
     	return wordIdent.equals(spelling);
     }
     
+    /**
+     * @return the word's spelling
+     */
     @Override
 	public String toString() {
 		// pretty much an exact copy of getWord()

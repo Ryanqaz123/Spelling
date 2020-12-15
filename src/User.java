@@ -1,15 +1,13 @@
-//import java.nio.charset.Charset;
-//import java.nio.file.Files;
-//import java.nio.file.Paths;
-//import java.util.List;
 import java.io.*;
 import java.util.Scanner;
 
+/**
+ * Represents a user of the game
+ */
 public class User {
 	private static String userFileName = "users.txt";
     private String userName = "";
     private int userLevel = 0;
-    //private int userAge = 0;
 
     /**
      * Find the user associated with the given name and load that user's information
@@ -17,16 +15,7 @@ public class User {
      * @param name
      */
     @Deprecated
-    public User(String name) {//Loads a user's file based on name
-    	/*
-        List<String> result = null;
-        try {
-            result = Files.readAllLines(Paths.get(name+".txt"), 
-                    Charset.defaultCharset());
-        } catch (Exception e) {
-            System.out.println("Couldn't read file " + name+".txt");
-            e.printStackTrace();
-        }*/
+    public User(String name) {// Loads a user's file based on name
     	File userFile = new File(userFileName);
     	try (Scanner sc = new Scanner(userFile)){
     		while (sc.hasNextLine()) {
@@ -56,7 +45,6 @@ public class User {
         File userFile = new File(userFileName);
         userName = name;
         userLevel = level;
-        //userAge = age;
         try (FileWriter fw = new FileWriter(userFile, true);
         		BufferedWriter bw = new BufferedWriter(fw);) {
         	bw.newLine();
@@ -154,11 +142,12 @@ public class User {
     
     /**
      * Go through the users file and look for the given name
-     * If the name exists, return the user's level
-     * If the name exists, but the level cannot be found, return 0
+     * @return
+     * If the name exists, return the user's level<br>
+     * If the name exists, but the level cannot be found, return 0<br>
      * If the user cannot be found, return -1
      * @param name
-     * @return
+     * 
      */
     public static int levelOf(String name) {
     	File userFile = new File(userFileName);
@@ -190,11 +179,10 @@ public class User {
     }
     
     /**
-     * returns a User object corresponding to the given name, with the level of that user<br>
-     * returns null if there is no current User with that name, or cannot read from file<br>
+     * @return a User object corresponding to the given name, with the level of that user<br>
+     * null if there is no current User with that name, or cannot read from file<br>
      * {@code getLevel()} of the user is 0 if the level cannot be found
      * @param name
-     * @return
      */
     public static User load(String name) {
     	int level = levelOf(name);
@@ -205,12 +193,11 @@ public class User {
     }
     
     /**
-     * returns a User object corresponding to the given name<br>
      * writes the new user to users file<br>
-     * returns null if the user already exists
+     * @return a User object corresponding to the given name<br>
+     * null if the user already exists
      * @param name
      * @param level
-     * @return
      */
     public static User create(String name, int level, boolean checkExist) {
     	if (checkExist) {
@@ -233,8 +220,4 @@ public class User {
         return new User(name, level);
     }
 
-    /*
-    public int getAge() {
-        return userAge;
-    }*/
 }

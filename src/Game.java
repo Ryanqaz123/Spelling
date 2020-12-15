@@ -5,9 +5,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 
 import javax.swing.BoxLayout;
-//import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-//import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -25,21 +23,20 @@ import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-//import java.util.Scanner;
 import java.io.File;
-//import java.io.FileNotFoundException;
 import java.io.IOException;
- 
+
+/**
+ * Displays GUI for game, handles gameplay
+ */
 public class Game implements ActionListener {
     private JFrame frame;
     private JPanel menu, menu2, menu3, check, spellingWord, checkSpelling, levelUp, levelUpMax, chooseLevel, levelDown, changeWords;
     private JLabel noWords, menuTitle, menuTitle2, menuTitle3, checkL, wordsSpelledCorrectly, wordsCorrectInRow, correctPercentage, congratsNextLvl, congratsMax, lvlDown, level, ageLabel, nameAvailable, nameExists;
     private JTextPane wordsSpelledByUser;
-    private JTextField name, returnUser, /*age,*/ spellWord;
+    private JTextField name, returnUser, spellWord;
     private JSpinner ageSpin;
     private JButton start, hearAudio, hearSentence, enterWord, Continue, continueSameLvl, lowerLvl, chooseLvlBack, lvlDownContinue, newP, returningP, resume, yes, no, nextWord, quit, tryAgain;
-    //private String[] levelStrings = {"Level 1", "Level 2", "Level 3", "Level 4", "Level 5"};
-    //private JComboBox<String> levels;
     private HashMap<Integer, Level> levelMap = new HashMap<>();
     private ArrayList<Integer> levelList = new ArrayList<>();
     private int wordsCorrect = 0, totalWordsSeen = 0, totalWordsCorrect = 0, wordsSeen = 0, consecutiveCorrect = 0;
@@ -47,8 +44,7 @@ public class Game implements ActionListener {
     private Word currentWord;
     private User user;
     private boolean spelledCorrectly = false, isNewWord = true;
-    //private int PL;
- 
+
     public Game() {
     	// Load Words
     	levelMap = new HashMap<>();
@@ -152,8 +148,6 @@ public class Game implements ActionListener {
  
         name = new JTextField("Name");
         menu2.add(name);
-        //age = new JTextField("Age");
-        //menu2.add(age);
         ageLabel = new JLabel("Enter Age:");
         menu2.add(ageLabel);
         SpinnerModel model = new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1);
@@ -162,8 +156,6 @@ public class Game implements ActionListener {
 		menu2.add(ageSpin);
 		nameAvailable = new JLabel(" ");
 		menu2.add(nameAvailable);
-        //levels = new JComboBox<>(levelStrings);
-        //menu2.add(levels);
  
         level = new JLabel("Level: ");
         spellingWord.add(level);
@@ -330,10 +322,8 @@ public class Game implements ActionListener {
         			currentLevelIndex--;
         			user.setLevel(playerLevel());
         		}
-        		//PL = user.getLevel();
         		menu.setVisible(false);
         		menu3.setVisible(false);
-        		//spellingWord.add(quit);
         		spellingWord.setVisible(true);
         		level.setText("Level: " + Integer.toString(playerLevel()));
         		frame.setContentPane(spellingWord);
@@ -372,7 +362,6 @@ public class Game implements ActionListener {
         // review new user: yes
         else if(eventName.equals("yes")) {
         	user = User.create(name.getText(), playerLevel(), false);
-        	//PL = user.getLevel();
             check.setVisible(false);
             spellingWord.setVisible(true);
             level.setText("Level: " + Integer.toString(playerLevel()));
@@ -476,7 +465,6 @@ public class Game implements ActionListener {
         	nextWord.setText("Next");
         	frame.pack();
         }
-        //}
         // spelling word: when hear button is click make noise
         else if(eventName.equals("hear")) {
         	SoundPlayback soundPlayer = new SoundPlayback();
@@ -503,7 +491,7 @@ public class Game implements ActionListener {
 				
 			}
         }
-        //screens
+        // screens
         // review spelling: next word
         else if(eventName.equals("checkSpelling")) {
         	// TODO how do we want to progress with levels
@@ -528,7 +516,7 @@ public class Game implements ActionListener {
                 checkSpelling.setVisible(false);
                 spellingWord.setVisible(true);
                 frame.setContentPane(spellingWord);
-                //when next button is click send to next word - change word noise
+                // when next button is click send to next word - change word noise
                 setCurrentWord();
                 frame.pack();
             }
@@ -560,7 +548,7 @@ public class Game implements ActionListener {
         	levelUpMax.setVisible(false);
             spellingWord.setVisible(true);
             frame.setContentPane(spellingWord);
-            //when next button is click send to next word - change word noise
+            // when next button is click send to next word - change word noise
             setCurrentWord();
             frame.pack();
         }
@@ -570,7 +558,7 @@ public class Game implements ActionListener {
             spellingWord.setVisible(true);
             frame.setContentPane(spellingWord);
             setLevelWithIndex(0);
-            //when next button is click send to next word - change word noise
+            // when next button is click send to next word - change word noise
             setCurrentWord();
             frame.pack();
         }
@@ -638,8 +626,7 @@ public class Game implements ActionListener {
     }
     
     /**
-     * Return the level associated the current level index
-     * @return
+     * @return the level associated the current level index
      */
     public int playerLevel() {
     	return levelList.get(currentLevelIndex).intValue();

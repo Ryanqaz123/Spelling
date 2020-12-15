@@ -6,6 +6,9 @@ import java.util.*;
 import java.io.*;
 import javax.sound.sampled.*;
 
+/**
+ * Displays GUI for editing, removing, adding words
+ */
 public class Editor {
 	
 	// frames and panels
@@ -29,7 +32,7 @@ public class Editor {
 			recordLengthLabel = new JLabel("Recording time (2 to 15 sec.)"),
 			sentenceLabel = new JLabel("Sentence"), levelLabel = new JLabel("Level"), statusLabel = new JLabel(" ");
 	private JSpinner recordLengthSpinner, levelSpinner;
-	private JTextField wordField = new JTextField(10);//, levelField = new JTextField(5);
+	private JTextField wordField = new JTextField(10);
 	private JButton previewSound = new JButton("Preview"), recordSound = new JButton("Record"),
 			previewSentence= new JButton("Preview"), recordSentence = new JButton("Record"),
 			saveButton = new JButton("Save"), cancelButton = new JButton("Cancel");
