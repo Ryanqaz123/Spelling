@@ -28,8 +28,8 @@ public class Editor {
 	private JLabel wordLabel = new JLabel("Spelling"), soundLabel = new JLabel("Pronunciation"),
 			recordLengthLabel = new JLabel("Recording time (2 to 15 sec.)"),
 			sentenceLabel = new JLabel("Sentence"), levelLabel = new JLabel("Level"), statusLabel = new JLabel(" ");
-	private JSpinner recordLengthSpinner;
-	private JTextField wordField = new JTextField(10), levelField = new JTextField(5);
+	private JSpinner recordLengthSpinner, levelSpinner;
+	private JTextField wordField = new JTextField(10);//, levelField = new JTextField(5);
 	private JButton previewSound = new JButton("Preview"), recordSound = new JButton("Record"),
 			previewSentence= new JButton("Preview"), recordSentence = new JButton("Record"),
 			saveButton = new JButton("Save"), cancelButton = new JButton("Cancel");
@@ -55,10 +55,13 @@ public class Editor {
 		levels = new JList<>(levelList);
 		levels.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		levels.setVisibleRowCount(-1);
-		levels.setPrototypeCellValue(levelList.lastElement());
-		if (levels.getFixedCellWidth() < 30) {
-			levels.setFixedCellWidth(30);
+		if (!levelList.isEmpty()) {
+			levels.setPrototypeCellValue(levelList.lastElement());
+			if (levels.getFixedCellWidth() < 30) {
+				levels.setFixedCellWidth(30);
+			}
 		}
+		
 		DefaultListCellRenderer renderer = (DefaultListCellRenderer) levels.getCellRenderer();
 		renderer.setHorizontalAlignment(SwingConstants.CENTER);
 		levels.addListSelectionListener(new ListSelectionListener() {
@@ -167,17 +170,22 @@ public class Editor {
 		c.gridy = 0;
 		c.gridwidth = 2;
 		editMenu.add(wordField, c);
-		c.gridy = 4;
-		c.gridwidth = 1;
-		editMenu.add(levelField, c);
-		// recording time spinner
+		// recording time and level spinners
 		c.gridy = 3;
+		c.gridwidth = 1;
 		SpinnerModel recordLengthModel = new SpinnerNumberModel(2.0, 2.0, 15.0, 1.0);
 		recordLengthSpinner = new JSpinner(recordLengthModel);
 		JComponent spinnerEditor = recordLengthSpinner.getEditor();
 		JFormattedTextField jftf = ((JSpinner.DefaultEditor) spinnerEditor).getTextField();
 		jftf.setColumns(5);
 		editMenu.add(recordLengthSpinner, c);
+		c.gridy = 4;
+		SpinnerModel levelModel = new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1);
+		levelSpinner = new JSpinner(levelModel);
+		JComponent spinnerEditor2 = levelSpinner.getEditor();
+		JFormattedTextField jftf2 = ((JSpinner.DefaultEditor) spinnerEditor2).getTextField();
+		jftf2.setColumns(5);
+		editMenu.add(levelSpinner, c);
 		// preview and record sound buttons
 		c.gridy = 1;
 		editMenu.add(previewSound, c);
@@ -394,11 +402,12 @@ public class Editor {
 				oldSound.delete();
 				oldSentence.delete();
 				loadWords();
-				if (levelList != null) {
-					levels.setModel(levelList);
-				}
-				else {
-					levels.setModel(new DefaultListModel<Integer>());
+				levels.setModel(levelList);
+				if (!levelList.isEmpty()) {
+					levels.setPrototypeCellValue(levelList.lastElement());
+					if (levels.getFixedCellWidth() < 30) {
+						levels.setFixedCellWidth(30);
+					}
 				}
 				words.setModel(new DefaultListModel<String>());
 			}
@@ -438,7 +447,7 @@ public class Editor {
 				currentSpelling = words.getSelectedValue();
 				currentLevel = levels.getSelectedValue();
 				wordField.setText(currentSpelling);
-				levelField.setText(currentLevel.toString());
+				levelSpinner.setValue(currentLevel);
 				previewSound.setEnabled(true);
 				previewSentence.setEnabled(true);
 				editDialog.setTitle("Edit " + currentSpelling);
@@ -446,7 +455,7 @@ public class Editor {
 			else {
 				// adding word: put blank info
 				wordField.setText("");
-				levelField.setText("");
+				levelSpinner.setValue(1);
 				previewSound.setEnabled(false);
 				previewSentence.setEnabled(false);
 				currentSpelling = null;
@@ -520,17 +529,6 @@ public class Editor {
 						return;
 					}
 				}
-				// check that level number is okay
-				try {
-					int levelNumber = Integer.parseInt(levelField.getText());
-					if (levelNumber <= 0) {
-						throw new NumberFormatException();
-					}
-				}
-				catch (NumberFormatException ex) {
-					statusLabel.setText("Malformed level (should be a positive integer)");
-					return;
-				}
 			}
 			editDialogSavedCancelled = true;
 			System.gc();
@@ -547,7 +545,7 @@ public class Editor {
 					sentenceRenamed = updatedSentence.renameTo(newSentence);
 				}
 				// update word list
-				Integer newLevel = Integer.parseInt(levelField.getText());
+				Integer newLevel = (Integer)levelSpinner.getValue();
 				if (currentSpelling != null && (!currentSpelling.equals(newSpelling)
 						|| !currentLevel.equals(newLevel))) {
 					deleteWord(currentSpelling, currentLevel);
@@ -572,12 +570,14 @@ public class Editor {
 					}
 				}
 				loadWords();
-				if (levelList != null) {
-					levels.setModel(levelList);
+				levels.setModel(levelList);
+				if (!levelList.isEmpty()) {
+					levels.setPrototypeCellValue(levelList.lastElement());
+					if (levels.getFixedCellWidth() < 30) {
+						levels.setFixedCellWidth(30);
+					}
 				}
-				else {
-					levels.setModel(new DefaultListModel<Integer>());
-				}
+				
 				words.setModel(new DefaultListModel<String>());
 			}
 			else {
@@ -683,5 +683,3 @@ public class Editor {
 	}
 
 }
-
-// TODO figure out how to select levels

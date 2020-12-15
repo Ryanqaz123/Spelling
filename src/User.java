@@ -13,8 +13,10 @@ public class User {
 
     /**
      * Find the user associated with the given name and load that user's information
+     * @deprecated use User.load(name) instead
      * @param name
      */
+    @Deprecated
     public User(String name) {//Loads a user's file based on name
     	/*
         List<String> result = null;
@@ -41,25 +43,15 @@ public class User {
     		
 		}
     }
-    
-    /**
-     * Only intended for use after running User.userLevel(name) and receiving a positive integer<br>
-     * Initialize an existing user with the given information<br>
-     * <b>Warning: does not check that the user exists, does not read or write from users file</b>
-     * @param name
-     * @param level
-     */
-    private User(String name, int level) {
-    	userName = name;
-    	userLevel = level;
-    }
 
     /**
      * Initialize a user with the given information and append the user to the users file
+     * @deprecated use User.create(name, level) instead
      * @param age
      * @param name
      * @param level
      */
+    @Deprecated
     public User(int age, String name, int level) {
         File userFile = new File(userFileName);
         userName = name;
@@ -75,6 +67,18 @@ public class User {
         catch (IOException ex) {
         	
         }
+    }
+    
+    /**
+     * Initialize a User with the given information<br>
+     * <b>Warning: does not check whether or not the user exists, does not read or write from users file</b><br>
+     * Use {@code User.load(name)} or{@code  User.create(name, level)} to create existing/new user objects
+     * @param name
+     * @param level
+     */
+    public User(String name, int level) {
+    	userName = name;
+    	userLevel = level;
     }
     
     /**
@@ -186,9 +190,9 @@ public class User {
     }
     
     /**
-     * returns a User object corresponding to the given name, with the level of that user
-     * returns null if there is no current User with that name, or cannot read from file
-     * getLevel() of the user is 0 if the level cannot be found
+     * returns a User object corresponding to the given name, with the level of that user<br>
+     * returns null if there is no current User with that name, or cannot read from file<br>
+     * {@code getLevel()} of the user is 0 if the level cannot be found
      * @param name
      * @return
      */
@@ -198,6 +202,35 @@ public class User {
     		return null;
     	}
     	return new User(name, level);
+    }
+    
+    /**
+     * returns a User object corresponding to the given name<br>
+     * writes the new user to users file<br>
+     * returns null if the user already exists
+     * @param name
+     * @param level
+     * @return
+     */
+    public static User create(String name, int level, boolean checkExist) {
+    	if (checkExist) {
+    		int existingLevel = levelOf(name);
+    		if (existingLevel != -1) {
+    			return null;
+    		}
+    	}
+    	File userFile = new File(userFileName);
+        try (FileWriter fw = new FileWriter(userFile, true);
+        		BufferedWriter bw = new BufferedWriter(fw);) {
+        	bw.newLine();
+        	bw.write(name);
+        	bw.newLine();
+        	bw.write(Integer.toString(level));
+        }
+        catch (IOException ex) {
+        	
+        }
+        return new User(name, level);
     }
 
     /*

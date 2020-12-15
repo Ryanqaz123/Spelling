@@ -21,10 +21,10 @@ public class Level {
         File file = new File("Words/" + Integer.toString(level) + ".txt");
 		try (Scanner levelScanner = new Scanner(file)) {
 			while (levelScanner.hasNextLine()) {
-				 String spelling = levelScanner.nextLine();
-				 Word newWord = new Word(spelling);
-				 words.add(newWord);
-				 newWords.add(newWord);
+				String spelling = levelScanner.nextLine();
+				Word newWord = new Word(spelling);
+				words.add(newWord);
+				newWords.add(newWord);
 			}
 		}
 		catch (FileNotFoundException ex1) {
