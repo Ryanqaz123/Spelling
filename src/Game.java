@@ -544,7 +544,7 @@ public class Game implements ActionListener {
             frame.pack();
         }
         // max level screen: stay at level
-        else if(eventName.equals("max")) {
+        else if(eventName.equals("stay")) {
         	levelUpMax.setVisible(false);
             spellingWord.setVisible(true);
             frame.setContentPane(spellingWord);
@@ -557,7 +557,7 @@ public class Game implements ActionListener {
         	levelUpMax.setVisible(false);
             spellingWord.setVisible(true);
             frame.setContentPane(spellingWord);
-            setLevelWithIndex(0);
+            decrementLevel();
             // when next button is click send to next word - change word noise
             setCurrentWord();
             frame.pack();
@@ -587,6 +587,7 @@ public class Game implements ActionListener {
             frame.setContentPane(menu);
             frame.pack();
         }
+        // XXX we don't have enough time to care about a level selector
     }
     
     /**
@@ -633,3 +634,13 @@ public class Game implements ActionListener {
     }
     
 }
+
+/* FIXME known issues
+ * sentences are missing (for now)
+ * we have to figure out how we want to change the user's level, especially since the user can't do that manually
+ * current status: it takes exactly 10 words to move down or up a level, regardless of number correct or incorrect. on lowest level, it takes seven correct spellings to move to the next level
+ * on highest level, selecting "continue on this level" makes continue/drop level show up every time word is spelled correctly
+ * no title on the JFrame (not really an issue)
+ * text fields show previous response when revisiting a window
+ * how to count scores: currently, streak show number of words spelled in a row without giving up, accuracy shows percentage of words spelled on first try
+ */

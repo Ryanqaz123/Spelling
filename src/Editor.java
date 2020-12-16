@@ -686,3 +686,7 @@ public class Editor {
 	}
 
 }
+
+/* FIXME known issues
+ * add them here
+ */
