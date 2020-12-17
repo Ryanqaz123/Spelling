@@ -216,8 +216,8 @@ public class Editor {
 			public void windowClosing(WindowEvent e) {
 				// close button
 				if (!editDialogSavedCancelled) {
-					File updatedSound = new File("temp_word.wav");
-					File updatedSentence = new File("temp_sentence.wav");
+					File updatedSound = new File(".temp_word.wav");
+					File updatedSentence = new File(".temp_sentence.wav");
 					System.gc();
 					updatedSound.delete();
 					updatedSentence.delete();
@@ -439,8 +439,8 @@ public class Editor {
 			}
 			// load current word if necessary
 			// audio clips can be loaded by file
-			File newSound = new File("temp_word.wav");
-			File newSentence = new File("temp_sentence.wav");
+			File newSound = new File(".temp_word.wav");
+			File newSentence = new File(".temp_sentence.wav");
 			System.gc();
 			newSound.delete();
 			newSentence.delete();
@@ -481,9 +481,9 @@ public class Editor {
 		public void actionPerformed(ActionEvent e) {
 			String newSpelling = wordField.getText().toLowerCase();
 			File newSound = new File("Recordings/" + newSpelling + ".wav");
-			File updatedSound = new File("temp_word.wav");
+			File updatedSound = new File(".temp_word.wav");
 			File newSentence = new File("Sentences/" + newSpelling + ".wav");
-			File updatedSentence = new File("temp_sentence.wav");
+			File updatedSentence = new File(".temp_sentence.wav");
 			if (e.getActionCommand().equals("save")) {
 				// input validation
 				// check that word is there
@@ -607,7 +607,7 @@ public class Editor {
 			File soundFile;
 			String fileName;
 			if (e.getActionCommand().equals("spelling")) {
-				fileName = "temp_word.wav";
+				fileName = ".temp_word.wav";
 				soundFile = new File(fileName);
 				// play current recording if word exists and a new recording hasn't been made
 				if (!(currentSpelling == null || soundFile.exists())) {
@@ -615,7 +615,7 @@ public class Editor {
 				}
 			}
 			else {
-				fileName = "temp_sentence.wav";
+				fileName = ".temp_sentence.wav";
 				soundFile = new File(fileName);
 				if (!(currentSpelling == null || soundFile.exists())) {
 					fileName = "Sentences/" + currentSpelling + ".wav";
@@ -648,10 +648,10 @@ public class Editor {
 			SoundCapture recorder;
 			// create temporary sound file
 			if (e.getActionCommand().equals("spelling")) {
-				recorder = new SoundCapture("temp_word.wav");
+				recorder = new SoundCapture(".temp_word.wav");
 			}
 			else {
-				recorder = new SoundCapture("temp_sentence.wav");
+				recorder = new SoundCapture(".temp_sentence.wav");
 			}
 			// try to capture sound
 			try {
