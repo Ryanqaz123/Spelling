@@ -343,7 +343,7 @@ public class Game implements ActionListener {
         	if (User.levelOf(checkString) == -1) {
         		nameAvailable.setText(" ");
         		int startAge = (Integer)ageSpin.getValue();
-        		int startLevelIndex = Math.max((int)((levelList.size() - 1) * (startAge - 5) / 8.0), 0);
+        		int startLevelIndex = Math.max((int)((levelList.size() - 1) * (startAge - 5) / 5.0), 0);
         		if (startLevelIndex != 0) {
         			currentLevelIndex = Math.min(startLevelIndex, levelList.size() - 1);
         		}
@@ -646,6 +646,7 @@ public class Game implements ActionListener {
 }
 
 /* FIXME known issues
- * sentences are missing (for now)
  * text fields show previous response when revisiting a window
+ * adding a new user and then quitting results in user not being created
+ * sometimes the program crashes after trying to spell a word again
  */
