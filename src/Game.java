@@ -496,36 +496,39 @@ public class Game implements ActionListener {
         // screens
         // review spelling: next word
         else if(eventName.equals("checkSpelling")) {
-        	/* After 10 words have been seen:
-        	 * Any level besides the minimum or maximum level: move up if 7 words have been spelled correctly on the first try, move down otherwise
-        	 * Minimum level: move up as soon as 7 words have been spelled correctly on the first try
-        	 * Maximum level: move down if fewer than 7 words have been spelled correctly, ask to move down or stay otherwise
+        	/* Move down if 10 words have been seen AND (strictly) fewer than 2/3 of words have been spelled correctly on the first try, and not on lowest level
+        	 * Otherwise, after 10 words have been spelled correctly on the first try, move up a level, or ask to stay or move down if on the maximum level
         	 */
-        	if((wordsSeen >= 10 && wordsCorrect < 7) && currentLevelIndex != 0) { // level down
-                checkSpelling.setVisible(false);
-                levelDown.setVisible(true);
-                levelDown.add(quit);
-                frame.setContentPane(levelDown);
-                frame.pack();
-            }else if(wordsSeen >= 10 && wordsCorrect >= 7 && (currentLevelIndex + 1 == levelList.size())) { // max level up
-                checkSpelling.setVisible(false);
-                levelUpMax.setVisible(true);
-                levelUpMax.add(quit);
-                frame.setContentPane(levelUpMax);
-                frame.pack();
-            }else if(wordsSeen >= 10 && wordsCorrect >= 7) { // level up
-                checkSpelling.setVisible(false);
-                levelUp.setVisible(true);
-                frame.setContentPane(levelUp);
-                frame.pack();
-            }else { // no level change
-                checkSpelling.setVisible(false);
-                spellingWord.setVisible(true);
-                frame.setContentPane(spellingWord);
-                // when next button is click send to next word - change word noise
-                setCurrentWord();
-                frame.pack();
-            }
+        	if (wordsSeen >= 10 && 3 * wordsCorrect < 2 * wordsSeen && currentLevelIndex != 0) { // level down
+        		checkSpelling.setVisible(false);
+        		levelDown.setVisible(true);
+        		levelDown.add(quit);
+        		frame.setContentPane(levelDown);
+        		frame.pack();
+        	}
+        	else if (wordsCorrect >= 10) {
+        		if (currentLevelIndex + 1 == levelList.size()) { // level up max
+        			checkSpelling.setVisible(false);
+        			levelUpMax.setVisible(true);
+        			levelUpMax.add(quit);
+        			frame.setContentPane(levelUpMax);
+        			frame.pack();
+        		}
+        		else { // level up
+        			checkSpelling.setVisible(false);
+        			levelUp.setVisible(true);
+        			frame.setContentPane(levelUp);
+        			frame.pack();
+        		}
+        	}
+        	else { // no level change
+        		checkSpelling.setVisible(false);
+        		spellingWord.setVisible(true);
+        		frame.setContentPane(spellingWord);
+        		// when next button is click send to next word - change word noise
+        		setCurrentWord();
+        		frame.pack();
+        	}
         }
         // level down screen: down button
         else if(eventName.equals("down")) {
