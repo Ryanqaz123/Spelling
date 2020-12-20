@@ -555,7 +555,7 @@ public class Game implements ActionListener {
         // max level screen: stay at level
         else if(eventName.equals("stay")) {
         	wordsSeen = 0;
-        	wordsCorrect = 10;
+        	wordsCorrect = 0;
         	levelUpMax.setVisible(false);
             spellingWord.setVisible(true);
             frame.setContentPane(spellingWord);
